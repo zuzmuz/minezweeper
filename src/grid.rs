@@ -6,6 +6,13 @@ pub struct Grid {
 }
 
 impl Grid {
+
+    fn panic_if_too_many_mines(number_of_mines: usize, shape: (usize, usize)) {
+        if number_of_mines > shape.0 * shape.1 {
+            panic!("Too many mines for the grid!");
+        }
+    }
+
     fn set(&mut self, x: usize, y: usize, value: i8) {
         self.grid[y * self.shape.0 + x] = value;
     }
@@ -54,22 +61,34 @@ impl Grid {
         }
     }
 
-    pub fn new(shape: (usize, usize)) -> Grid {
-        Grid {
-            grid: vec![0; shape.0 * shape.1],
-            shape: shape,
-        }
+    fn init(&mut self, number_of_mines: usize) {
+        self.set_mines(number_of_mines);
     }
 
-    pub fn init(&mut self, number_of_mines: usize) {
-        if number_of_mines > self.shape.0 * self.shape.1 {
-            panic!("Too many mines!");
-        }
-        self.set_mines(number_of_mines);
+
+    pub fn new(shape: (usize, usize), number_of_mines: usize) -> Grid {
+        Grid::panic_if_too_many_mines(number_of_mines, shape);
+        let mut grid = Grid {
+            grid: vec![0; shape.0 * shape.1],
+            shape: shape,
+        };
+        grid.init(number_of_mines);
+        return grid
     }
 
     pub fn get(&self, x: usize, y: usize) -> i8 {
         self.grid[y * self.shape.0 + x]
+    }
+
+    pub fn get_shape(&self) -> (usize, usize) {
+        self.shape
+    }
+
+    pub fn reshape(&mut self, shape: (usize, usize), number_of_mines: usize) {
+        Grid::panic_if_too_many_mines(number_of_mines, shape);
+        self.shape = shape;
+        self.grid = vec![0; shape.0 * shape.1];
+        self.init(number_of_mines);
     }
 
     pub fn print(&self) {
