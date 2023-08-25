@@ -19,9 +19,8 @@ const LEVELS: [Level; 3] = [
     Level::Easy, Level::Medium, Level::Hard
 ];
 
-pub struct Menu<'a> {
-    buttons: [Button; 3],
-    delegate: &'a dyn MenuDelegate
+pub struct Menu {
+    buttons: [Button; 3]
 }
 
 pub trait ButtonSize {
@@ -59,8 +58,8 @@ impl ButtonSize for Level {
     }
 }
 
-impl<'a> Menu<'a> {
-    pub fn standard(frame_width: f32, frame_height: f32, delegate: &'a impl MenuDelegate) -> Self {
+impl Menu {
+    pub fn standard(frame_width: f32, frame_height: f32) -> Self {
         let (button_width, button_height) = consts::BUTTON_SIZE;
         let horizontal_margin = 0.5 * (frame_width - button_width);
         let vertical_margin = 0.25 * (frame_height - 3.0 * button_height);
@@ -71,8 +70,7 @@ impl<'a> Menu<'a> {
                     level.level_info().name,
                     level.button_size(button_width, button_height, horizontal_margin, vertical_margin)
                 )
-            ),
-            delegate: delegate
+            )
         }
     }
 
@@ -88,7 +86,7 @@ impl<'a> Menu<'a> {
     }
 }
 
-impl<'a> MouseMineEventHandler for Menu<'a> {
+impl MouseMineEventHandler for Menu {
 
     fn mouse_button_down_event(
         &mut self,
@@ -112,7 +110,7 @@ impl<'a> MouseMineEventHandler for Menu<'a> {
     ) -> GameResult {
         for (i, button) in self.buttons.iter().enumerate() {
             if button.point_inside(x, y) {
-                self.delegate.level_selected(LEVELS[i])
+                // self.delegate.level_selected(LEVELS[i])
             }
         }
         Ok(())

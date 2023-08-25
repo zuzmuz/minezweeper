@@ -21,7 +21,7 @@ pub enum Level {
     Hard
 }
 
-struct LevelInfo {
+pub struct LevelInfo {
     pub name: String,
     pub grid_size: (usize, usize),
     pub number_of_mines: usize
@@ -91,7 +91,7 @@ impl Minezweeper {
         // Load/create resources such as images here.
         let (frame_width, frame_height) = ctx.gfx.drawable_size();
         Minezweeper {
-            screen: Screen::Menu(Menu::standard(frame_width, frame_height, self)),
+            screen: Screen::Menu(Menu::standard(frame_width, frame_height)),
         }
     }
 
