@@ -1,6 +1,7 @@
 use crate::consts;
-use crate::grid::Grid;
-use crate::menu::Button;
+mod grid;
+mod menu;
+
 use ggez::graphics::{self, Color};
 use ggez::input::{
     keyboard::{KeyCode, KeyInput},
@@ -8,10 +9,12 @@ use ggez::input::{
 };
 use ggez::{event::EventHandler, Context, GameResult};
 
+use menu::buttons::Button;
+use grid::Grid;
+
 pub struct Minezweeper {
     grid: Option<Grid>,
-
-    menu: Vec<Button>,
+    menu: [Button; 3],
 }
 
 impl Minezweeper {
@@ -24,7 +27,7 @@ impl Minezweeper {
 
         Minezweeper {
             grid: None,
-            menu: vec![
+            menu: [
                 Button::new(
                     "Easy",
                     graphics::Rect::new(
@@ -32,25 +35,25 @@ impl Minezweeper {
                         vertical_margin,
                         button_width,
                         button_height,
-                    )
+                    ),
                 ),
                 Button::new(
                     "Medium",
                     graphics::Rect::new(
                         horizontal_margin,
-                        2.0*vertical_margin + button_height,
+                        2.0 * vertical_margin + button_height,
                         button_width,
                         button_height,
-                    )
+                    ),
                 ),
                 Button::new(
                     "Hard",
                     graphics::Rect::new(
                         horizontal_margin,
-                        3.0*vertical_margin + 2.0*button_height,
+                        3.0 * vertical_margin + 2.0 * button_height,
                         button_width,
                         button_height,
-                    )
+                    ),
                 ),
             ],
         }

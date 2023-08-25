@@ -1,7 +1,5 @@
-mod minezweeper;
-mod grid;
-mod menu;
 mod consts;
+mod minezweeper;
 use ggez::{event, ContextBuilder, graphics::FontData};
 use std::env;
 use std::path;
