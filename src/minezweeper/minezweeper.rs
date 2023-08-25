@@ -1,8 +1,6 @@
-use std::default;
-
 use ggez::graphics::{self, Color};
 use ggez::input::{
-    keyboard::{KeyCode, KeyInput},
+    keyboard::KeyInput,
     mouse::MouseButton,
 };
 use ggez::{event::EventHandler, Context, GameResult};
@@ -146,7 +144,7 @@ impl MenuDelegate for Minezweeper {
 }
 
 impl EventHandler for Minezweeper {
-    fn update(&mut self, ctx: &mut Context) -> GameResult {
+    fn update(&mut self, _ctx: &mut Context) -> GameResult {
         Ok(())
     }
 
@@ -175,7 +173,7 @@ impl EventHandler for Minezweeper {
             Screen::Menu(menu) => {
                 menu.mouse_button_down_event(ctx, button, x, y)
             },
-            Screen::Game(grid) => {
+            Screen::Game(_grid) => {
                 Ok(())
             }
         }
@@ -192,7 +190,7 @@ impl EventHandler for Minezweeper {
             Screen::Menu(menu) => {
                 menu.mouse_button_up_event(ctx, button, x, y)
             },
-            Screen::Game(grid) => {
+            Screen::Game(_grid) => {
                 Ok(())
             }
         }
@@ -210,7 +208,7 @@ impl EventHandler for Minezweeper {
             Screen::Menu(menu) => {
                 menu.mouse_motion_event(ctx, x, y, dx, dy)
             },
-            Screen::Game(grid) => {
+            Screen::Game(_grid) => {
                 Ok(())
             }
         }

@@ -82,19 +82,19 @@ impl Grid {
         self.shape
     }
 
-    pub fn reshape(&mut self, shape: (usize, usize), number_of_mines: usize) {
-        Self::panic_if_too_many_mines(number_of_mines, shape);
-        self.shape = shape;
-        self.grid = vec![0; shape.0 * shape.1];
-        self.init(number_of_mines);
-    }
+    // pub fn reshape(&mut self, shape: (usize, usize), number_of_mines: usize) {
+    //     Self::panic_if_too_many_mines(number_of_mines, shape);
+    //     self.shape = shape;
+    //     self.grid = vec![0; shape.0 * shape.1];
+    //     self.init(number_of_mines);
+    // }
 
-    pub fn print(&self) {
-        for y in 0..self.shape.1 {
-            for x in 0..self.shape.0 {
-                print!("{}\t", self.get(x, y));
-            }
-            println!();
-        }
-    }
+    // pub fn print(&self) {
+    //     for y in 0..self.shape.1 {
+    //         for x in 0..self.shape.0 {
+    //             print!("{}\t", self.get(x, y));
+    //         }
+    //         println!();
+    //     }
+    // }
 }

@@ -3,7 +3,7 @@ use crate::consts;
 use buttons::Button;
 use ggez::{graphics::{self, Canvas}, GameResult, Context};
 use ggez::input::{
-    keyboard::{KeyCode, KeyInput},
+    // keyboard::{KeyCode, KeyInput},
     mouse::MouseButton,
 };
 use super::minezweeper::{
@@ -90,8 +90,8 @@ impl MouseMineEventHandler for Menu {
 
     fn mouse_button_down_event(
         &mut self,
-        ctx: &mut Context,
-        button: MouseButton,
+        _ctx: &mut Context,
+        _button: MouseButton,
         x: f32,
         y: f32,
     ) -> GameResult {
@@ -103,12 +103,12 @@ impl MouseMineEventHandler for Menu {
 
     fn mouse_button_up_event(
         &mut self,
-        ctx: &mut Context,
-        button: MouseButton,
+        _ctx: &mut Context,
+        _button: MouseButton,
         x: f32,
         y: f32,
     ) -> GameResult {
-        for (i, button) in self.buttons.iter().enumerate() {
+        for (_i, button) in self.buttons.iter().enumerate() {
             if button.point_inside(x, y) {
                 // self.delegate.level_selected(LEVELS[i])
             }
@@ -118,11 +118,11 @@ impl MouseMineEventHandler for Menu {
 
     fn mouse_motion_event(
         &mut self,
-        ctx: &mut Context,
+        _ctx: &mut Context,
         x: f32,
         y: f32,
-        dx: f32,
-        dy: f32,
+        _dx: f32,
+        _dy: f32,
     ) -> GameResult {
         for button in self.buttons.iter_mut() {
             button.hovered = button.point_inside(x, y);
