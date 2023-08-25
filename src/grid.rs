@@ -66,8 +66,8 @@ impl Grid {
     }
 
 
-    pub fn new(shape: (usize, usize), number_of_mines: usize) -> Grid {
-        Grid::panic_if_too_many_mines(number_of_mines, shape);
+    pub fn new(shape: (usize, usize), number_of_mines: usize) -> Self {
+        Self::panic_if_too_many_mines(number_of_mines, shape);
         let mut grid = Grid {
             grid: vec![0; shape.0 * shape.1],
             shape: shape,
@@ -85,7 +85,7 @@ impl Grid {
     }
 
     pub fn reshape(&mut self, shape: (usize, usize), number_of_mines: usize) {
-        Grid::panic_if_too_many_mines(number_of_mines, shape);
+        Self::panic_if_too_many_mines(number_of_mines, shape);
         self.shape = shape;
         self.grid = vec![0; shape.0 * shape.1];
         self.init(number_of_mines);
