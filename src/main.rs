@@ -1,7 +1,7 @@
 mod consts;
 mod minezweeper;
 use ggez::{event, graphics::FontData, ContextBuilder};
-use minezweeper::Minezweeper;
+use minezweeper::minezweeper::Minezweeper;
 use std::env;
 use std::path;
 

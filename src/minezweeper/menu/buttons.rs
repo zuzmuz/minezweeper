@@ -11,9 +11,9 @@ pub struct Button {
 }
 
 impl Button {
-    pub fn new(text: &str, rect: graphics::Rect) -> Button {
+    pub fn new(text: String, rect: graphics::Rect) -> Button {
         Button {
-            text: String::from(text),
+            text,
             rect,
             hovered: false,
             clicked: false,
@@ -56,5 +56,9 @@ impl Button {
             .color(consts::BUTTON_TEXT_COLOR);
         canvas.draw(&text, text_param);
         Ok(())
+    }
+
+    pub fn point_inside(&self, x: f32, y: f32) -> bool {
+        return self.rect.contains(Point2 { x, y });
     }
 }
