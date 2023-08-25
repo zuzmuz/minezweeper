@@ -11,7 +11,7 @@ impl Grid {
     }
 
     fn increment_cell(&mut self, x: usize, y: usize) {
-        if x < self.shape.0 && y < self.shape.1 && self.get(x, y) != -1 {
+        if self.get(x, y) != -1 {
             self.set(x, y, self.get(x, y) + 1);
         }
     }
@@ -27,18 +27,28 @@ impl Grid {
 
                 if x > 0 {
                     self.increment_cell(x - 1, y);
+                }
+                if x > 0 && y < self.shape.1 - 1 {
                     self.increment_cell(x, y + 1);
                 }
                 if y > 0 {
                     self.increment_cell(x, y - 1);
+                }
+                if y > 0 && x < self.shape.0 - 1 {
                     self.increment_cell(x + 1, y - 1);
                 }
                 if x > 0 && y > 0 {
                     self.increment_cell(x - 1, y - 1);
                 }
-                self.increment_cell(x + 1, y);
-                self.increment_cell(x, y + 1);
-                self.increment_cell(x + 1, y + 1);
+                if x < self.shape.0 - 1 {
+                    self.increment_cell(x + 1, y);
+                }
+                if y < self.shape.1 - 1 {
+                    self.increment_cell(x, y + 1);
+                }
+                if x < self.shape.0 - 1 && y < self.shape.1 - 1 {
+                    self.increment_cell(x + 1, y + 1);
+                }
                 mines += 1;
             }
         }
@@ -52,6 +62,9 @@ impl Grid {
     }
 
     pub fn init(&mut self, number_of_mines: usize) {
+        if number_of_mines > self.shape.0 * self.shape.1 {
+            panic!("Too many mines!");
+        }
         self.set_mines(number_of_mines);
     }
 
