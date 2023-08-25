@@ -53,33 +53,6 @@ impl Level {
     }
 }
 
-pub trait MouseMineEventHandler {
-    fn mouse_button_down_event(
-        &mut self,
-        ctx: &mut Context,
-        button: MouseButton,
-        x: f32,
-        y: f32
-    ) -> GameResult;
-
-    fn mouse_button_up_event(
-        &mut self,
-        ctx: &mut Context,
-        button: MouseButton,
-        x: f32,
-        y: f32,
-    ) -> GameResult;
-
-    fn mouse_motion_event(
-        &mut self,
-        ctx: &mut Context,
-        x: f32,
-        y: f32,
-        dx: f32,
-        dy: f32,
-    ) -> GameResult;
-}
-
 pub struct Minezweeper {
     screen: Screen,
 }
@@ -164,54 +137,61 @@ impl EventHandler for Minezweeper {
 
     fn mouse_button_down_event(
         &mut self,
-        ctx: &mut Context,
-        button: MouseButton,
+        _ctx: &mut Context,
+        _button: MouseButton,
         x: f32,
         y: f32,
     ) -> GameResult {
         match &mut self.screen {
             Screen::Menu(menu) => {
-                menu.mouse_button_down_event(ctx, button, x, y)
+                menu.mouse_button_down_event(x, y);
             },
             Screen::Game(_grid) => {
-                Ok(())
+                
             }
         }
+        Ok(())
     }
 
     fn mouse_button_up_event(
         &mut self,
-        ctx: &mut Context,
-        button: MouseButton,
+        _ctx: &mut Context,
+        _button: MouseButton,
         x: f32,
         y: f32,
     ) -> GameResult {
         match &mut self.screen {
             Screen::Menu(menu) => {
-                menu.mouse_button_up_event(ctx, button, x, y)
+                if let Some(level) = menu.mouse_button_up_event(x, y) {
+                    self.screen = Screen::Game(
+                        Grid::new(level.level_info().grid_size, level.level_info().number_of_mines)
+                    )
+                }
             },
             Screen::Game(_grid) => {
-                Ok(())
+                
             }
         }
+        Ok(())
     }
 
     fn mouse_motion_event(
         &mut self,
-        ctx: &mut Context,
+        _ctx: &mut Context,
         x: f32,
         y: f32,
-        dx: f32,
-        dy: f32,
+        _dx: f32,
+        _dy: f32,
     ) -> GameResult {
         match &mut self.screen {
             Screen::Menu(menu) => {
-                menu.mouse_motion_event(ctx, x, y, dx, dy)
+                menu.mouse_motion_event(x, y);
             },
             Screen::Game(_grid) => {
-                Ok(())
+                
             }
         }
+        Ok(())
     }
 
     fn key_down_event(&mut self, _ctx: &mut Context, input: KeyInput, _repeat: bool) -> GameResult {

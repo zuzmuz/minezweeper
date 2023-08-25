@@ -2,14 +2,8 @@ mod buttons;
 use crate::consts;
 use buttons::Button;
 use ggez::{graphics::{self, Canvas}, GameResult, Context};
-use ggez::input::{
-    // keyboard::{KeyCode, KeyInput},
-    mouse::MouseButton,
-};
-use super::minezweeper::{
-    MouseMineEventHandler,
-    Level
-};
+
+use super::minezweeper::Level;
 
 pub trait MenuDelegate {
     fn level_selected(&mut self, level: Level);
@@ -74,62 +68,46 @@ impl Menu {
         }
     }
 
-    // pub fn set_delegate(&self, delegate: impl MenuDelegate) {
-    //     self.delegate = delegate;
-    // }
-
     pub fn draw(&self, ctx: &mut Context, canvas: &mut Canvas) -> GameResult {
         for button in self.buttons.iter() {
             button.draw(ctx, canvas, graphics::DrawParam::default())?;
         }
         Ok(())
     }
-}
 
-impl MouseMineEventHandler for Menu {
-
-    fn mouse_button_down_event(
+    pub fn mouse_button_down_event(
         &mut self,
-        _ctx: &mut Context,
-        _button: MouseButton,
         x: f32,
         y: f32,
-    ) -> GameResult {
+    ) {
         for button in self.buttons.iter_mut() {
             button.clicked = button.point_inside(x, y);
         }
-        Ok(())
     }
 
-    fn mouse_button_up_event(
+    pub fn mouse_button_up_event(
         &mut self,
-        _ctx: &mut Context,
-        _button: MouseButton,
         x: f32,
         y: f32,
-    ) -> GameResult {
-        for (_i, button) in self.buttons.iter().enumerate() {
+    ) -> Option<&Level> {
+        for (i, button) in self.buttons.iter().enumerate() {
             if button.point_inside(x, y) {
-                // self.delegate.level_selected(LEVELS[i])
+                return Some(&LEVELS[i]);
             }
         }
-        Ok(())
+        None
     }
 
-    fn mouse_motion_event(
+    pub fn mouse_motion_event(
         &mut self,
-        _ctx: &mut Context,
         x: f32,
         y: f32,
-        _dx: f32,
-        _dy: f32,
-    ) -> GameResult {
+    ) {
         for button in self.buttons.iter_mut() {
             button.hovered = button.point_inside(x, y);
             if !button.hovered {
                 button.clicked = false
             }
         }
-        Ok(())
     }
 }
