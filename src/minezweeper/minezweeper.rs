@@ -91,7 +91,7 @@ impl Minezweeper {
         // Load/create resources such as images here.
         let (frame_width, frame_height) = ctx.gfx.drawable_size();
         Minezweeper {
-            screen: Screen::Menu(Menu::standard(frame_width, frame_height)),
+            screen: Screen::Menu(Menu::standard(frame_width, frame_height, self)),
         }
     }
 
