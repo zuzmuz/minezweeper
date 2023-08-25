@@ -6,7 +6,6 @@ pub struct Grid {
 }
 
 impl Grid {
-
     fn panic_if_too_many_mines(number_of_mines: usize, shape: (usize, usize)) {
         if number_of_mines > shape.0 * shape.1 {
             panic!("Too many mines for the grid!");
@@ -65,7 +64,6 @@ impl Grid {
         self.set_mines(number_of_mines);
     }
 
-
     pub fn new(shape: (usize, usize), number_of_mines: usize) -> Self {
         Self::panic_if_too_many_mines(number_of_mines, shape);
         let mut grid = Grid {
@@ -73,7 +71,7 @@ impl Grid {
             shape: shape,
         };
         grid.init(number_of_mines);
-        return grid
+        return grid;
     }
 
     pub fn get(&self, x: usize, y: usize) -> i8 {

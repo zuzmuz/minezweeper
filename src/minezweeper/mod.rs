@@ -9,8 +9,8 @@ use ggez::input::{
 };
 use ggez::{event::EventHandler, Context, GameResult};
 
-use menu::buttons::Button;
 use grid::Grid;
+use menu::buttons::Button;
 
 pub struct Minezweeper {
     grid: Option<Grid>,

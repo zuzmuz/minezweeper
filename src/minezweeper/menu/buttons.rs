@@ -42,12 +42,17 @@ impl Button {
         )?;
         canvas.draw(&rectangle, param);
         let text = graphics::Text::new(
-            TextFragment::new(self.text.clone()).scale(PxScale::from(consts::BUTTON_SIZE.1)).font("SyneMono"),
+            TextFragment::new(self.text.clone())
+                .scale(PxScale::from(consts::BUTTON_SIZE.1))
+                .font("SyneMono"),
         );
-        let (x, y) = (self.rect.left() + 0.055555*consts::BUTTON_SIZE.0*((9-self.text.len()) as f32), self.rect.top());
-    
+        let (x, y) = (
+            self.rect.left() + 0.055555 * consts::BUTTON_SIZE.0 * ((9 - self.text.len()) as f32),
+            self.rect.top(),
+        );
+
         let text_param = graphics::DrawParam::default()
-            .dest(Point2 {x: x, y: y})
+            .dest(Point2 { x: x, y: y })
             .color(consts::BUTTON_TEXT_COLOR);
         canvas.draw(&text, text_param);
         Ok(())
