@@ -173,13 +173,12 @@ impl EventHandler for Minezweeper {
     fn key_down_event(&mut self, ctx: &mut Context, input: KeyInput, _repeat: bool) -> GameResult {
         match &mut self.screen {
             Screen::Menu(_) => {
-                let level = match input.keycode {
-                    Some(KeyCode::Key1) => Level::Easy,
-                    Some(KeyCode::Key2) => Level::Medium,
-                    Some(KeyCode::Key3) => Level::Hard,
-                    _ => return Ok(()),
+                match input.keycode {
+                    Some(KeyCode::Key1) => self.start_game(Level::Easy, ctx)?,
+                    Some(KeyCode::Key2) => self.start_game(Level::Medium, ctx)?,
+                    Some(KeyCode::Key3) => self.start_game(Level::Hard, ctx)?,
+                    _ => {},
                 };
-                self.start_game(level, ctx)?;
             },
             Screen::Game(game) => {
                 match input.keycode {
