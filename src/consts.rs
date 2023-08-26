@@ -66,9 +66,9 @@ pub const NUMBER_COLORS: [Color; 8] = [
 ];
 
 pub const BUTTON_COLOR: Color = Color {
-    r: 0.1,
-    g: 0.1,
-    b: 0.1,
+    r: 0.08,
+    g: 0.08,
+    b: 0.08,
     a: 1.0,
 };
 pub const BUTTON_HOVERED_COLOR: Color = Color {
@@ -78,28 +78,28 @@ pub const BUTTON_HOVERED_COLOR: Color = Color {
     a: 1.0,
 };
 pub const BUTTON_CLICKED_COLOR: Color = Color {
-    r: 0.3,
-    g: 0.3,
-    b: 0.3,
+    r: 0.28,
+    g: 0.28,
+    b: 0.28,
     a: 1.0,
 };
 
 
 pub const BUTTON_CLEARED_COLOR: Color = Color {
-    r: 0.16,
-    g: 0.13,
+    r: 0.18,
+    g: 0.15,
     b: 0.14,
     a: 1.0,
 };
 pub const BUTTON_CLEARED_HOVERED_COLOR: Color = Color {
     r: 0.32,
-    g: 0.26,
+    g: 0.30,
     b: 0.28,
     a: 1.0,
 };
 pub const BUTTON_CLEARED_CLICKED_COLOR: Color = Color {
     r: 0.48,
-    g: 0.39,
+    g: 0.45,
     b: 0.42,
     a: 1.0,
 };
