@@ -1,4 +1,5 @@
 use crate::consts;
+use crate::settings::Controls;
 use ggez::event::EventHandler;
 use ggez::graphics::{self, Color};
 use ggez::input::{
@@ -9,6 +10,7 @@ use ggez::{Context, GameResult};
 
 use super::game::Game;
 use super::menu::Menu;
+
 
 enum Screen {
     Menu(Menu),
@@ -51,6 +53,7 @@ impl Level {
 
 pub struct Minezweeper {
     screen: Screen,
+    controls: Controls,
 }
 
 impl Minezweeper {
@@ -58,6 +61,7 @@ impl Minezweeper {
         // Load/create resources such as images here.
         Minezweeper {
             screen: Screen::Menu(Menu::standard()),
+            controls: Controls::default(),
         }
     }
 }
@@ -152,10 +156,16 @@ impl EventHandler for Minezweeper {
     }
 
     fn key_down_event(&mut self, ctx: &mut Context, input: KeyInput, _repeat: bool) -> GameResult {
-        if let Screen::Game(_) = &self.screen {
-            if let Some(KeyCode::Back) = input.keycode {
-                ctx.gfx.set_drawable_size(consts::SCREEN_SIZE.0, consts::SCREEN_SIZE.1)?;
-                self.screen = Screen::Menu(Menu::standard())
+        if let Screen::Game(game) = &mut self.screen {
+            match input.keycode {
+                Some(KeyCode::Back) => {
+                    ctx.gfx.set_drawable_size(consts::SCREEN_SIZE.0, consts::SCREEN_SIZE.1)?;
+                    self.screen = Screen::Menu(Menu::standard())
+                }
+                Some(keycode) => {
+                    game.handle(self.controls.handle(keycode));
+                }
+                None => {}
             }
         }
         if let Some(KeyCode::Escape) = input.keycode {

@@ -27,9 +27,9 @@ pub const RED: Color = Color {
 };
 
 pub const DARK_BLUE: Color = Color {
-    r: 0.20,
-    g: 0.35,
-    b: 0.72,
+    r: 0.10,
+    g: 0.15,
+    b: 0.62,
     a: 1.0,
 };
 

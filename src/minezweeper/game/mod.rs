@@ -7,10 +7,12 @@ use ggez::{
 };
 use grid::Grid;
 
-use crate::consts;
+use crate::{consts, settings::{Action, Direction}};
 
 pub enum GameState {
-    Win, Lose, Playing
+    Win,
+    Lose,
+    Playing,
 }
 pub struct Game {
     grid: Grid,
@@ -18,7 +20,6 @@ pub struct Game {
 }
 
 impl Game {
-
     fn cell_rect(x: usize, y: usize) -> Rect {
         Rect::new(
             x as f32 * consts::QUAD_SIZE.0 + 0.1 * consts::QUAD_SIZE.0,
@@ -89,11 +90,7 @@ impl Game {
         Ok(())
     }
 
-    pub fn mouse_motion_event(
-        &mut self,
-        x_pos: f32,
-        y_pos: f32,
-    ) {
+    pub fn mouse_motion_event(&mut self, x_pos: f32, y_pos: f32) {
         let (cell_x, cell_y) = Self::cell_position(x_pos, y_pos);
         self.grid.set_hovered(cell_x, cell_y, true);
         if let Some((last_cell_x, last_cell_y)) = self.last_hovered_cell {
@@ -102,27 +99,17 @@ impl Game {
                 self.grid.set_clicked(last_cell_x, last_cell_y, false);
                 self.last_hovered_cell = Some((cell_x, cell_y));
             }
-        }
-        else {
+        } else {
             self.last_hovered_cell = Some((cell_x, cell_y));
         }
     }
 
-    pub fn mouse_button_down_event(
-        &mut self,
-        x_pos: f32,
-        y_pos: f32,
-    ) {
-
+    pub fn mouse_button_down_event(&mut self, x_pos: f32, y_pos: f32) {
         let (cell_x, cell_y) = Self::cell_position(x_pos, y_pos);
         self.grid.set_clicked(cell_x, cell_y, true);
     }
 
-    pub fn mouse_button_up_event(
-        &mut self,
-        x_pos: f32,
-        y_pos: f32,
-    ) -> GameState {
+    pub fn mouse_button_up_event(&mut self, x_pos: f32, y_pos: f32) -> GameState {
         let (cell_x, cell_y) = Self::cell_position(x_pos, y_pos);
         self.grid.set_clicked(cell_x, cell_y, false);
         let cell = self.grid.get(cell_x, cell_y);
@@ -134,13 +121,13 @@ impl Game {
             return GameState::Lose;
         }
         self.grid.set_cleared(cell_x, cell_y);
+        if self.grid.all_cleared() {
+            return GameState::Win;
+        }
         GameState::Playing
     }
 
-    pub fn mouse_enter_or_leave(
-        &mut self,
-        entered: bool,
-    ) {
+    pub fn mouse_enter_or_leave(&mut self, entered: bool) {
         if !entered {
             if let Some((last_cell_x, last_cell_y)) = self.last_hovered_cell {
                 self.grid.set_hovered(last_cell_x, last_cell_y, false);
@@ -148,5 +135,64 @@ impl Game {
                 self.last_hovered_cell = None;
             }
         }
+    }
+
+    pub fn handle(&mut self, action: Action) -> GameState {
+
+        if let Some((x, y)) = self.last_hovered_cell {
+            match action {
+                Action::Clear => {
+                    if self.grid.get(x, y).get_value() == -1 {
+                        return GameState::Lose;
+                    }
+                    self.grid.set_cleared(x, y);
+                    if self.grid.all_cleared() {
+                        return GameState::Win;
+                    }
+                }
+                Action::Flag => self.grid.toggle_flagged(x, y),
+                Action::QuestionMark => self.grid.toggle_question_marked(x, y),
+                Action::ClearAdjacent => self.grid.clear_adjacent(x, y),
+                _ => {},
+            }
+        }
+        if let Action::Move(direction) = action {
+            let (x, y) = self.last_hovered_cell.unwrap_or((0, 0));
+            match direction {
+                Direction::Left => {
+                    if x > 0 {
+                        self.grid.set_hovered(x-1, y, true);
+                        self.last_hovered_cell = Some((x-1, y));
+                        self.grid.set_hovered(x, y, false);
+                        self.grid.set_clicked(x, y, false);
+                    }
+                },
+                Direction::Right => {
+                    if x < self.grid.get_shape().0 - 1 {
+                        self.grid.set_hovered(x+1, y, true);
+                        self.last_hovered_cell = Some((x+1, y));
+                        self.grid.set_hovered(x, y, false);
+                        self.grid.set_clicked(x, y, false);
+                    }
+                },
+                Direction::Up => {
+                    if y > 0 {
+                        self.grid.set_hovered(x, y-1, true);
+                        self.last_hovered_cell = Some((x, y-1));
+                        self.grid.set_hovered(x, y, false);
+                        self.grid.set_clicked(x, y, false);
+                    }
+                },
+                Direction::Down => {
+                    if y < self.grid.get_shape().1 - 1 {
+                        self.grid.set_hovered(x, y+1, true);
+                        self.last_hovered_cell = Some((x, y+1));
+                        self.grid.set_hovered(x, y, false);
+                        self.grid.set_clicked(x, y, false);
+                    }
+                },
+            }
+        }
+        GameState::Playing
     }
 }

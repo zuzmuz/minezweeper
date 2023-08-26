@@ -107,6 +107,77 @@ impl Grid {
         &self.grid[y * self.shape.0 + x]
     }
 
+    pub fn all_cleared(&self) -> bool {
+        self.number_of_cleared == self.shape.0 * self.shape.1 - self.number_of_mines
+    }
+
+    fn surrounding_flags(&self, x: usize, y: usize) -> i8 {
+        let mut number_of_flagged: i8 = 0;
+        if x > 0 {
+            number_of_flagged += self.get(x - 1, y).flagged as i8;
+        }
+        if x > 0 && y < self.shape.1 - 1 {
+            number_of_flagged += self.get(x - 1, y + 1).flagged as i8;
+        }
+        if y > 0 {
+            number_of_flagged += self.get(x, y - 1).flagged as i8;
+        }
+        if y > 0 && x < self.shape.0 - 1 {
+            number_of_flagged += self.get(x + 1, y - 1).flagged as i8;
+        }
+        if x > 0 && y > 0 {
+            number_of_flagged += self.get(x - 1, y - 1).flagged as i8;
+        }
+        if x < self.shape.0 - 1 {
+            number_of_flagged += self.get(x + 1, y).flagged as i8;
+        }
+        if y < self.shape.1 - 1 {
+            number_of_flagged += self.get(x, y + 1).flagged as i8;
+        }
+        if x < self.shape.0 - 1 && y < self.shape.1 - 1 {
+            number_of_flagged += self.get(x + 1, y + 1).flagged as i8;
+        }
+        
+        number_of_flagged
+    }
+
+    pub fn clear_adjacent(&mut self, x: usize, y: usize) {
+        let cell = self.get(x, y);
+        if cell.cleared {
+            return;
+        }
+        if self.surrounding_flags(x, y) != cell.value {
+            return;
+        }
+        
+        let to_clear = !(cell.flagged || cell.question_marked);
+
+        if x > 0 && to_clear {
+            self.set_cleared(x - 1, y);
+        }
+        if x > 0 && y < self.shape.1 - 1 && to_clear {
+            self.set_cleared(x - 1, y + 1);
+        }
+        if y > 0  && to_clear  {
+            self.set_cleared(x, y - 1);
+        }
+        if y > 0 && x < self.shape.0 - 1 && to_clear {
+            self.set_cleared(x + 1, y - 1);
+        }
+        if x > 0 && y > 0  && to_clear {
+            self.set_cleared(x - 1, y - 1);
+        }
+        if x < self.shape.0 - 1 && to_clear {
+            self.set_cleared(x + 1, y);
+        }
+        if y < self.shape.1 - 1 && to_clear {
+            self.set_cleared(x, y + 1);
+        }
+        if x < self.shape.0 - 1 && y < self.shape.1 - 1 && to_clear {
+            self.set_cleared(x + 1, y + 1);
+        }
+    }
+
     pub fn set_cleared(&mut self, x: usize, y: usize) {
         if !self.initialized {
             self.init((x, y));
@@ -150,13 +221,13 @@ impl Grid {
         }
     }
 
-    // pub fn set_flagged(&mut self, x: usize, y: usize, flagged: bool) {
-    //     self.grid[y * self.shape.0 + x].flagged = flagged;
-    // }
+    pub fn toggle_flagged(&mut self, x: usize, y: usize) {
+        self.grid[y * self.shape.0 + x].flagged = !(self.grid[y * self.shape.0 + x].flagged);
+    }
 
-    // pub fn set_question_marked(&mut self, x: usize, y: usize, question_marked: bool) {
-    //     self.grid[y * self.shape.0 + x].question_marked = question_marked;
-    // }
+    pub fn toggle_question_marked(&mut self, x: usize, y: usize) {
+        self.grid[y * self.shape.0 + x].question_marked = !(self.grid[y * self.shape.0 + x].question_marked);
+    }
 
     pub fn set_hovered(&mut self, x: usize, y: usize, hovered: bool) {
         self.grid[y * self.shape.0 + x].hovered = hovered;
