@@ -29,6 +29,9 @@ impl Cell {
 pub struct Grid {
     grid: Vec<Cell>,
     shape: (usize, usize),
+    number_of_mines: usize,
+    number_of_cleared: usize,
+    initialized: bool
 }
 
 impl Grid {
@@ -48,12 +51,15 @@ impl Grid {
         }
     }
 
-    fn set_mines(&mut self, number_of_mines: usize) {
+    fn init(&mut self, first_cell: (usize, usize)) {
         let mut rng = rand::thread_rng();
         let mut mines = 0;
-        while mines < number_of_mines {
+        while mines < self.number_of_mines {
             let x = rng.gen_range(0..self.shape.0);
             let y = rng.gen_range(0..self.shape.1);
+            if first_cell.0 <= 1 + x && first_cell.0 + 1 >= x && first_cell.1 <= 1 + y && first_cell.1 + 1 >= y {
+                continue;
+            }
             if self.get(x, y).value != -1 {
                 self.set(x, y, -1);
 
@@ -86,34 +92,36 @@ impl Grid {
         }
     }
 
-    fn init(&mut self, number_of_mines: usize) {
-        self.set_mines(number_of_mines);
-    }
-
     pub fn new(shape: (usize, usize), number_of_mines: usize) -> Self {
         Self::panic_if_too_many_mines(number_of_mines, shape);
-        let mut grid = Grid {
-            grid: vec![
-                Cell::new(0);
-                shape.0 * shape.1
-            ],
+        Grid {
+            grid: vec![Cell::new(0); shape.0 * shape.1],
             shape: shape,
-        };
-        grid.init(number_of_mines);
-        return grid;
+            number_of_mines,
+            number_of_cleared: 0,
+            initialized: false
+        }
     }
 
     pub fn get(&self, x: usize, y: usize) -> &Cell {
         &self.grid[y * self.shape.0 + x]
     }
-    
 
     pub fn set_cleared(&mut self, x: usize, y: usize) {
+        if !self.initialized {
+            self.init((x, y));
+            self.initialized = true;
+        }
         let cell = &mut self.grid[y * self.shape.0 + x];
         if cell.cleared {
             return;
         }
         cell.cleared = true;
+        self.number_of_cleared += 1;
+        println!(
+            "number of remaining uncleared {}",
+            self.shape.0 * self.shape.1 - self.number_of_cleared - self.number_of_mines
+        );
         if cell.value == 0 {
             if x > 0 {
                 self.set_cleared(x - 1, y);
