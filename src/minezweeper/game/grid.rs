@@ -106,18 +106,49 @@ impl Grid {
     pub fn get(&self, x: usize, y: usize) -> &Cell {
         &self.grid[y * self.shape.0 + x]
     }
+    
 
-    pub fn set_cleared(&mut self, x: usize, y: usize, cleared: bool) {
-        self.grid[y * self.shape.0 + x].cleared = cleared;
+    pub fn set_cleared(&mut self, x: usize, y: usize) {
+        let cell = &mut self.grid[y * self.shape.0 + x];
+        if cell.cleared {
+            return;
+        }
+        cell.cleared = true;
+        if cell.value == 0 {
+            if x > 0 {
+                self.set_cleared(x - 1, y);
+            }
+            if x > 0 && y < self.shape.1 - 1 {
+                self.set_cleared(x - 1, y + 1);
+            }
+            if y > 0 {
+                self.set_cleared(x, y - 1);
+            }
+            if y > 0 && x < self.shape.0 - 1 {
+                self.set_cleared(x + 1, y - 1);
+            }
+            if x > 0 && y > 0 {
+                self.set_cleared(x - 1, y - 1);
+            }
+            if x < self.shape.0 - 1 {
+                self.set_cleared(x + 1, y);
+            }
+            if y < self.shape.1 - 1 {
+                self.set_cleared(x, y + 1);
+            }
+            if x < self.shape.0 - 1 && y < self.shape.1 - 1 {
+                self.set_cleared(x + 1, y + 1);
+            }
+        }
     }
 
-    pub fn set_flagged(&mut self, x: usize, y: usize, flagged: bool) {
-        self.grid[y * self.shape.0 + x].flagged = flagged;
-    }
+    // pub fn set_flagged(&mut self, x: usize, y: usize, flagged: bool) {
+    //     self.grid[y * self.shape.0 + x].flagged = flagged;
+    // }
 
-    pub fn set_question_marked(&mut self, x: usize, y: usize, question_marked: bool) {
-        self.grid[y * self.shape.0 + x].question_marked = question_marked;
-    }
+    // pub fn set_question_marked(&mut self, x: usize, y: usize, question_marked: bool) {
+    //     self.grid[y * self.shape.0 + x].question_marked = question_marked;
+    // }
 
     pub fn set_hovered(&mut self, x: usize, y: usize, hovered: bool) {
         self.grid[y * self.shape.0 + x].hovered = hovered;

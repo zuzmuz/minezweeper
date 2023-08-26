@@ -9,26 +9,15 @@ use grid::Grid;
 
 use crate::consts;
 
+pub enum GameState {
+    Win, Lose, Playing
+}
 pub struct Game {
     grid: Grid,
     last_hovered_cell: Option<(usize, usize)>,
 }
 
 impl Game {
-
-    fn cell_point(x: usize, y: usize) -> Point2<f32> {
-        Point2 {
-            x: x as f32 * consts::QUAD_SIZE.0 + 0.1 * consts::QUAD_SIZE.0,
-            y: y as f32 * consts::QUAD_SIZE.1 + 0.1 * consts::QUAD_SIZE.1,
-        }
-    }
-
-    fn cell_size() -> (f32, f32) {
-        (
-            consts::QUAD_SIZE.0 - 0.2 * consts::QUAD_SIZE.0,
-            consts::QUAD_SIZE.1 - 0.2 * consts::QUAD_SIZE.1,
-        )
-    }
 
     fn cell_rect(x: usize, y: usize) -> Rect {
         Rect::new(
@@ -133,10 +122,19 @@ impl Game {
         &mut self,
         x_pos: f32,
         y_pos: f32,
-    ) {
+    ) -> GameState {
         let (cell_x, cell_y) = Self::cell_position(x_pos, y_pos);
         self.grid.set_clicked(cell_x, cell_y, false);
-        self.grid.set_cleared(cell_x, cell_y, true);
+        let cell = self.grid.get(cell_x, cell_y);
+
+        if cell.cleared {
+            return GameState::Playing;
+        }
+        if cell.get_value() == -1 {
+            return GameState::Lose;
+        }
+        self.grid.set_cleared(cell_x, cell_y);
+        GameState::Playing
     }
 
     pub fn mouse_enter_or_leave(
