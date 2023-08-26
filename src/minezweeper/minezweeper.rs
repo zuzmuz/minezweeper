@@ -119,7 +119,7 @@ impl EventHandler for Minezweeper {
                 }
             }
             Screen::Game(game) => {
-                // game.mouse_button_up_event(x, y);
+                game.mouse_button_up_event(x, y);
             }
         }
         Ok(())

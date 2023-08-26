@@ -59,12 +59,13 @@ impl Game {
             for y in 0..grid_y {
                 let cell = self.grid.get(x, y);
                 let rect = Self::cell_rect(x, y);
-                let button_color = if cell.clicked {
-                    consts::BUTTON_CLICKED_COLOR
-                } else if cell.hovered {
-                    consts::BUTTON_HOVERED_COLOR
-                } else {
-                    consts::BUTTON_COLOR
+                let button_color = match (cell.hovered, cell.clicked, cell.cleared) {
+                    (true, true, true) => consts::BUTTON_CLEARED_CLICKED_COLOR,
+                    (true, true, false) => consts::BUTTON_CLICKED_COLOR,
+                    (true, false, true) => consts::BUTTON_CLEARED_HOVERED_COLOR,
+                    (true, false, false) => consts::BUTTON_HOVERED_COLOR,
+                    (false, _, true) => consts::BUTTON_CLEARED_COLOR,
+                    (false, _, false) => consts::BUTTON_COLOR,
                 };
                 let rectangle = Mesh::new_rounded_rectangle(
                     ctx,
@@ -75,22 +76,24 @@ impl Game {
                 )?;
                 canvas.draw(&rectangle, DrawParam::default());
 
-                let value = cell.get_value();
-                if value > 0 {
-                    let color = consts::NUMBER_COLORS[(value - 1) as usize];
-                    let text = Text::new(
-                        TextFragment::new(value.to_string())
-                            .scale(PxScale::from(0.8 * consts::QUAD_SIZE.1))
-                            .font("SyneMono"),
-                    );
+                if cell.cleared {
+                    let value = cell.get_value();
+                    if value > 0 {
+                        let color = consts::NUMBER_COLORS[(value - 1) as usize];
+                        let text = Text::new(
+                            TextFragment::new(value.to_string())
+                                .scale(PxScale::from(0.8 * consts::QUAD_SIZE.1))
+                                .font("SyneMono"),
+                        );
 
-                    let text_param = DrawParam::default()
-                        .dest(Point2 {
-                            x: rect.left() + 0.22 * consts::QUAD_SIZE.1,
-                            y: rect.top() + 0.03 * consts::QUAD_SIZE.1,
-                        })
-                        .color(color);
-                    canvas.draw(&text, text_param);
+                        let text_param = DrawParam::default()
+                            .dest(Point2 {
+                                x: rect.left() + 0.22 * consts::QUAD_SIZE.1,
+                                y: rect.top() + 0.03 * consts::QUAD_SIZE.1,
+                            })
+                            .color(color);
+                        canvas.draw(&text, text_param);
+                    }
                 }
             }
         }
@@ -131,12 +134,9 @@ impl Game {
         x_pos: f32,
         y_pos: f32,
     ) {
-        let (grid_x, grid_y) = self.grid.get_shape();
-        for x in 0..grid_x {
-            for y in 0..grid_y {
-                let rect = Self::cell_rect(x, y);
-            }
-        }
+        let (cell_x, cell_y) = Self::cell_position(x_pos, y_pos);
+        self.grid.set_clicked(cell_x, cell_y, false);
+        self.grid.set_cleared(cell_x, cell_y, true);
     }
 
     pub fn mouse_enter_or_leave(
