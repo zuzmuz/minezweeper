@@ -1,17 +1,17 @@
 use crate::consts;
-use ggez::graphics::{self, Canvas, DrawParam, PxScale, TextFragment};
+use ggez::graphics::{Canvas, DrawMode, DrawParam, Mesh, PxScale, Rect, Text, TextFragment};
 use ggez::mint::Point2;
 use ggez::{Context, GameResult};
 
 pub struct Button {
     text: String,
-    rect: graphics::Rect,
+    rect: Rect,
     pub hovered: bool,
     pub clicked: bool,
 }
 
 impl Button {
-    pub fn new(text: String, rect: graphics::Rect) -> Button {
+    pub fn new(text: String, rect: Rect) -> Button {
         Button {
             text,
             rect,
@@ -33,15 +33,15 @@ impl Button {
         } else {
             consts::BUTTON_COLOR
         };
-        let rectangle = graphics::Mesh::new_rounded_rectangle(
+        let rectangle = Mesh::new_rounded_rectangle(
             ctx,
-            graphics::DrawMode::fill(),
+            DrawMode::fill(),
             self.rect,
             self.rect.h * 0.2,
             color,
         )?;
         canvas.draw(&rectangle, param);
-        let text = graphics::Text::new(
+        let text = Text::new(
             TextFragment::new(self.text.clone())
                 .scale(PxScale::from(consts::BUTTON_SIZE.1))
                 .font("SyneMono"),
@@ -51,7 +51,7 @@ impl Button {
             self.rect.top(),
         );
 
-        let text_param = graphics::DrawParam::default()
+        let text_param = DrawParam::default()
             .dest(Point2 { x: x, y: y })
             .color(consts::BUTTON_TEXT_COLOR);
         canvas.draw(&text, text_param);

@@ -28,7 +28,6 @@ fn main() {
 
     let font = FontData::from_path(&ctx.fs, "/Synemono-Regular.ttf").expect("Could not load font");
     ctx.gfx.add_font("SyneMono", font);
-
     let minezweeper = Minezweeper::new(&mut ctx);
 
     event::run(ctx, event_loop, minezweeper);

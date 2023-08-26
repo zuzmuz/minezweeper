@@ -35,7 +35,7 @@ impl Grid {
                     self.increment_cell(x - 1, y);
                 }
                 if x > 0 && y < self.shape.1 - 1 {
-                    self.increment_cell(x, y + 1);
+                    self.increment_cell(x - 1, y + 1);
                 }
                 if y > 0 {
                     self.increment_cell(x, y - 1);

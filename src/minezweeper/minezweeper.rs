@@ -43,7 +43,7 @@ impl Level {
             Self::Hard => LevelInfo {
                 name: "Hard".to_string(),
                 grid_size: (30, 16),
-                number_of_mines: 99,
+                number_of_mines: 250,
             },
         }
     }
