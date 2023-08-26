@@ -164,24 +164,41 @@ impl EventHandler for Minezweeper {
     }
 
     fn key_down_event(&mut self, ctx: &mut Context, input: KeyInput, _repeat: bool) -> GameResult {
-        if let Screen::Game(game) = &mut self.screen {
-            match input.keycode {
-                Some(KeyCode::Back) => {
-                    ctx.gfx.set_drawable_size(consts::SCREEN_SIZE.0, consts::SCREEN_SIZE.1)?;
-                    self.screen = Screen::Menu(Menu::standard())
-                }
-                Some(keycode) => {
-                    match game.handle(self.controls.handle(keycode)) {
-                        GameState::Win => {
-                            println!("win");
-                        }
-                        GameState::Lose => {
-                            println!("lose");
-                        }
-                        GameState::Playing => {}
+        match &mut self.screen {
+            Screen::Game(game) => {
+                match input.keycode {
+                    Some(KeyCode::Back) => {
+                        ctx.gfx.set_drawable_size(consts::SCREEN_SIZE.0, consts::SCREEN_SIZE.1)?;
+                        self.screen = Screen::Menu(Menu::standard())
                     }
+                    Some(keycode) => {
+                        match game.handle(self.controls.handle(keycode)) {
+                            GameState::Win => {
+                                println!("win");
+                            }
+                            GameState::Lose => {
+                                println!("lose");
+                            }
+                            GameState::Playing => {}
+                        }
+                    }
+                    None => {}
                 }
-                None => {}
+            },
+            Screen::Menu(_) => {
+                let level = match input.keycode {
+                    Some(KeyCode::Key1) => Level::Easy,
+                    Some(KeyCode::Key2) => Level::Medium,
+                    Some(KeyCode::Key3) => Level::Hard,
+                    _ => return Ok(()),
+                };
+                let level_info = level.level_info();
+                let grid_size = level_info.grid_size;
+                ctx.gfx.set_drawable_size(
+                    grid_size.0 as f32 * consts::QUAD_SIZE.0,
+                    grid_size.1 as f32 * consts::QUAD_SIZE.1,
+                )?;
+                self.screen = Screen::Game(Game::new(grid_size, level_info.number_of_mines))
             }
         }
         if let Some(KeyCode::Escape) = input.keycode {
