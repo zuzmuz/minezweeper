@@ -1,17 +1,18 @@
 use crate::consts;
+use ggez::event::EventHandler;
 use ggez::graphics::{self, Color};
 use ggez::input::{
     keyboard::{KeyCode, KeyInput},
     mouse::MouseButton,
 };
-use ggez::{event::EventHandler, Context, GameResult};
+use ggez::{Context, GameResult};
 
-use super::grid::Grid;
-use super::menu::{Menu, MenuDelegate};
+use super::game::Game;
+use super::menu::Menu;
 
 enum Screen {
     Menu(Menu),
-    Game(Grid),
+    Game(Game),
 }
 
 pub enum Level {
@@ -59,56 +60,6 @@ impl Minezweeper {
             screen: Screen::Menu(Menu::standard()),
         }
     }
-
-    fn draw_grid(
-        &self,
-        ctx: &mut Context,
-        canvas: &mut graphics::Canvas,
-        grid: &Grid,
-    ) -> GameResult {
-        let (grid_x, grid_y) = grid.get_shape();
-        for x in 0..grid_x {
-            for y in 0..grid_y {
-                let cell = grid.get(x, y);
-                let color = match cell {
-                    -1 => Color::RED,
-                    0 => Color::WHITE,
-                    1 => Color::GREEN,
-                    2 => Color::BLUE,
-                    3 => Color::YELLOW,
-                    4 => Color::CYAN,
-                    5 => Color::MAGENTA,
-                    6 => Color::BLACK,
-                    7 => Color::WHITE,
-                    8 => Color::BLACK,
-                    _ => Color::WHITE,
-                };
-                let rect = graphics::Rect::new(x as f32 * 50.0, y as f32 * 50.0, 50.0, 50.0);
-                let rectangle = graphics::Mesh::new_rounded_rectangle(
-                    ctx,
-                    graphics::DrawMode::fill(),
-                    rect,
-                    5.0,
-                    color,
-                )?;
-                canvas.draw(&rectangle, graphics::DrawParam::default())
-            }
-        }
-        Ok(())
-    }
-
-    // fn draw_menu(&self, ctx: &mut Context, canvas: &mut graphics::Canvas) -> GameResult {
-
-    // }
-}
-
-impl MenuDelegate for Minezweeper {
-    fn level_selected(&mut self, level: Level) {
-        self.screen = Screen::Game(Grid::new(
-            level.level_info().grid_size,
-            level.level_info().number_of_mines,
-        ))
-    }
 }
 
 impl EventHandler for Minezweeper {
@@ -123,8 +74,8 @@ impl EventHandler for Minezweeper {
             Screen::Menu(menu) => {
                 menu.draw(ctx, &mut canvas)?;
             }
-            Screen::Game(grid) => {
-                self.draw_grid(ctx, &mut canvas, &grid)?;
+            Screen::Game(game) => {
+                game.draw(ctx, &mut canvas)?;
             }
         }
         canvas.finish(ctx)
@@ -162,7 +113,7 @@ impl EventHandler for Minezweeper {
                         grid_size.0 as f32 * consts::QUAD_SIZE.0,
                         grid_size.1 as f32 * consts::QUAD_SIZE.1,
                     )?;
-                    self.screen = Screen::Game(Grid::new(grid_size, level_info.number_of_mines))
+                    self.screen = Screen::Game(Game::new(grid_size, level_info.number_of_mines))
                 }
             }
             Screen::Game(_grid) => {}
@@ -189,13 +140,13 @@ impl EventHandler for Minezweeper {
 
     fn key_down_event(&mut self, ctx: &mut Context, input: KeyInput, _repeat: bool) -> GameResult {
         if let Screen::Game(_grid) = &self.screen {
-            match input.keycode {
-                Some(KeyCode::Back) => {
-                    ctx.gfx.set_drawable_size(consts::SCREEN_SIZE.0, consts::SCREEN_SIZE.1)?;
-                    self.screen = Screen::Menu(Menu::standard())
-                },
-                _default => {}
+            if let Some(KeyCode::Back) = input.keycode {
+                ctx.gfx.set_drawable_size(consts::SCREEN_SIZE.0, consts::SCREEN_SIZE.1)?;
+                self.screen = Screen::Menu(Menu::standard())
             }
+        }
+        if let Some(KeyCode::Escape) = input.keycode {
+            ctx.request_quit();
         }
         Ok(())
     }

@@ -1,3 +1,3 @@
 pub mod minezweeper;
-mod grid;
+mod game;
 mod menu;

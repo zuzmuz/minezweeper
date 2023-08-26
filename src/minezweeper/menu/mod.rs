@@ -5,10 +5,6 @@ use ggez::{graphics::{self, Canvas}, GameResult, Context};
 
 use super::minezweeper::Level;
 
-pub trait MenuDelegate {
-    fn level_selected(&mut self, level: Level);
-}
-
 const LEVELS: [Level; 3] = [
     Level::Easy, Level::Medium, Level::Hard
 ];
