@@ -111,3 +111,10 @@ pub const BUTTON_TEXT_COLOR: Color = Color {
     b: 0.85,
     a: 1.0,
 };
+
+pub const FLAG_COLOR: Color = Color {
+    r: 0.85,
+    g: 0.25,
+    b: 0.25,
+    a: 1.0,
+};

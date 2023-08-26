@@ -87,30 +87,18 @@ impl Game {
                 }
                 else if cell.flagged {
                     //Draw a flag
-                    let flag = Mesh::new_polygon(
-                        ctx,
-                        DrawMode::fill(),
-                        &[
-                            Point2 {
-                                x: rect.left() + 0.2 * consts::QUAD_SIZE.0,
-                                y: rect.top() + 0.1 * consts::QUAD_SIZE.1,
-                            },
-                            Point2 {
-                                x: rect.left() + 0.2 * consts::QUAD_SIZE.0,
-                                y: rect.bottom() - 0.1 * consts::QUAD_SIZE.1,
-                            },
-                            Point2 {
-                                x: rect.left() + 0.8 * consts::QUAD_SIZE.0,
-                                y: rect.top() + 0.4 * consts::QUAD_SIZE.1,
-                            },
-                            Point2 {
-                                x: rect.left() + 0.2 * consts::QUAD_SIZE.0,
-                                y: rect.top() + 0.4 * consts::QUAD_SIZE.1,
-                            },
-                        ],
-                        consts::RED,
-                    )?;
+                    let flag = Mesh::new_rounded_rectangle(ctx, DrawMode::fill(), Rect::new(
+                        rect.center().x - 0.025 * rect.w, rect.top() + 0.24 * rect.h,
+                        0.05 * consts::QUAD_SIZE.0, 0.52 * rect.h, 
+                    ), 0.1 * consts::QUAD_SIZE.0, consts::FLAG_COLOR)?;
 
+                    canvas.draw(&flag, DrawParam::default());
+
+                    let flag = Mesh::new_polygon(ctx, DrawMode::fill(), &[
+                        Point2 { x: rect.center().x, y: rect.top() + 0.24 * rect.h },
+                        Point2 { x: rect.center().x + 0.3 * rect.w, y: rect.top() + 0.37 * rect.h },
+                        Point2 { x: rect.center().x, y: rect.top() + 0.5 * rect.h },
+                    ], consts::FLAG_COLOR)?;
                     canvas.draw(&flag, DrawParam::default());
                 }
             }
