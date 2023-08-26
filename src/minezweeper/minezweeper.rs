@@ -17,6 +17,7 @@ enum Screen {
     Game(Game),
 }
 
+#[derive(Copy, Clone)]
 pub enum Level {
     Easy,
     Medium,
@@ -63,6 +64,17 @@ impl Minezweeper {
             screen: Screen::Menu(Menu::standard()),
             controls: Controls::default(),
         }
+    }
+
+    fn start_game(&mut self, level: Level, ctx: &mut Context) -> GameResult {
+        let level_info = level.level_info();
+        let grid_size = level_info.grid_size;
+        ctx.gfx.set_drawable_size(
+            grid_size.0 as f32 * consts::QUAD_SIZE.0,
+            grid_size.1 as f32 * consts::QUAD_SIZE.1,
+        )?;
+        self.screen = Screen::Game(Game::new(grid_size, level_info.number_of_mines));
+        Ok(())
     }
 }
 
@@ -113,13 +125,8 @@ impl EventHandler for Minezweeper {
         match &mut self.screen {
             Screen::Menu(menu) => {
                 if let Some(level) = menu.mouse_button_up_event(x, y) {
-                    let level_info = level.level_info();
-                    let grid_size = level_info.grid_size;
-                    ctx.gfx.set_drawable_size(
-                        grid_size.0 as f32 * consts::QUAD_SIZE.0,
-                        grid_size.1 as f32 * consts::QUAD_SIZE.1,
-                    )?;
-                    self.screen = Screen::Game(Game::new(grid_size, level_info.number_of_mines))
+                    let level = level.clone();
+                    self.start_game(level, ctx)?;
                 }
             }
             Screen::Game(game) => {
@@ -165,6 +172,15 @@ impl EventHandler for Minezweeper {
 
     fn key_down_event(&mut self, ctx: &mut Context, input: KeyInput, _repeat: bool) -> GameResult {
         match &mut self.screen {
+            Screen::Menu(_) => {
+                let level = match input.keycode {
+                    Some(KeyCode::Key1) => Level::Easy,
+                    Some(KeyCode::Key2) => Level::Medium,
+                    Some(KeyCode::Key3) => Level::Hard,
+                    _ => return Ok(()),
+                };
+                self.start_game(level, ctx)?;
+            },
             Screen::Game(game) => {
                 match input.keycode {
                     Some(KeyCode::Back) => {
@@ -184,21 +200,6 @@ impl EventHandler for Minezweeper {
                     }
                     None => {}
                 }
-            },
-            Screen::Menu(_) => {
-                let level = match input.keycode {
-                    Some(KeyCode::Key1) => Level::Easy,
-                    Some(KeyCode::Key2) => Level::Medium,
-                    Some(KeyCode::Key3) => Level::Hard,
-                    _ => return Ok(()),
-                };
-                let level_info = level.level_info();
-                let grid_size = level_info.grid_size;
-                ctx.gfx.set_drawable_size(
-                    grid_size.0 as f32 * consts::QUAD_SIZE.0,
-                    grid_size.1 as f32 * consts::QUAD_SIZE.1,
-                )?;
-                self.screen = Screen::Game(Game::new(grid_size, level_info.number_of_mines))
             }
         }
         if let Some(KeyCode::Escape) = input.keycode {

@@ -82,7 +82,7 @@ impl Menu {
     }
 
     pub fn mouse_button_up_event(
-        &mut self,
+        &self,
         x: f32,
         y: f32,
     ) -> Option<&Level> {
