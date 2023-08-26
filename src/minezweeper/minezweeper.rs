@@ -8,7 +8,7 @@ use ggez::input::{
 };
 use ggez::{Context, GameResult};
 
-use super::game::Game;
+use super::game::{Game, GameState};
 use super::menu::Menu;
 
 
@@ -123,7 +123,15 @@ impl EventHandler for Minezweeper {
                 }
             }
             Screen::Game(game) => {
-                game.mouse_button_up_event(x, y);
+                match game.mouse_button_up_event(x, y) {
+                    GameState::Win => {
+                        println!("win");
+                    }
+                    GameState::Lose => {
+                        println!("lose");
+                    }
+                    GameState::Playing => {}
+                }
             }
         }
         Ok(())
@@ -163,7 +171,15 @@ impl EventHandler for Minezweeper {
                     self.screen = Screen::Menu(Menu::standard())
                 }
                 Some(keycode) => {
-                    game.handle(self.controls.handle(keycode));
+                    match game.handle(self.controls.handle(keycode)) {
+                        GameState::Win => {
+                            println!("win");
+                        }
+                        GameState::Lose => {
+                            println!("lose");
+                        }
+                        GameState::Playing => {}
+                    }
                 }
                 None => {}
             }

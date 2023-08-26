@@ -85,6 +85,34 @@ impl Game {
                         canvas.draw(&text, text_param);
                     }
                 }
+                else if cell.flagged {
+                    //Draw a flag
+                    let flag = Mesh::new_polygon(
+                        ctx,
+                        DrawMode::fill(),
+                        &[
+                            Point2 {
+                                x: rect.left() + 0.2 * consts::QUAD_SIZE.0,
+                                y: rect.top() + 0.1 * consts::QUAD_SIZE.1,
+                            },
+                            Point2 {
+                                x: rect.left() + 0.2 * consts::QUAD_SIZE.0,
+                                y: rect.bottom() - 0.1 * consts::QUAD_SIZE.1,
+                            },
+                            Point2 {
+                                x: rect.left() + 0.8 * consts::QUAD_SIZE.0,
+                                y: rect.top() + 0.4 * consts::QUAD_SIZE.1,
+                            },
+                            Point2 {
+                                x: rect.left() + 0.2 * consts::QUAD_SIZE.0,
+                                y: rect.top() + 0.4 * consts::QUAD_SIZE.1,
+                            },
+                        ],
+                        consts::RED,
+                    )?;
+
+                    canvas.draw(&flag, DrawParam::default());
+                }
             }
         }
         Ok(())
@@ -117,10 +145,9 @@ impl Game {
         if cell.cleared {
             return GameState::Playing;
         }
-        if cell.get_value() == -1 {
+        if let Err(_) = self.grid.set_cleared(cell_x, cell_y) {
             return GameState::Lose;
         }
-        self.grid.set_cleared(cell_x, cell_y);
         if self.grid.all_cleared() {
             return GameState::Win;
         }
@@ -142,17 +169,23 @@ impl Game {
         if let Some((x, y)) = self.last_hovered_cell {
             match action {
                 Action::Clear => {
-                    if self.grid.get(x, y).get_value() == -1 {
+                    if let Err(_) = self.grid.set_cleared(x, y) {
                         return GameState::Lose;
                     }
-                    self.grid.set_cleared(x, y);
                     if self.grid.all_cleared() {
                         return GameState::Win;
                     }
                 }
                 Action::Flag => self.grid.toggle_flagged(x, y),
                 Action::QuestionMark => self.grid.toggle_question_marked(x, y),
-                Action::ClearAdjacent => self.grid.clear_adjacent(x, y),
+                Action::ClearAdjacent => {
+                    if let Err(_) = self.grid.clear_adjacent(x, y) {
+                        return GameState::Lose;
+                    }
+                    if self.grid.all_cleared() {
+                        return GameState::Win;
+                    }
+                },
                 _ => {},
             }
         }
