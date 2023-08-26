@@ -1,8 +1,9 @@
 use ggez::graphics::Color;
 
 pub const BUTTON_SIZE: (f32, f32) = (400.0, 100.0);
-pub const SCREEN_SIZE: (f32, f32) = (1.5 * BUTTON_SIZE.0, 4.0 * BUTTON_SIZE.1);
+pub const SCREEN_SIZE: (f32, f32) = (1.3 * BUTTON_SIZE.0, 5.0 * BUTTON_SIZE.1);
 pub const QUAD_SIZE: (f32, f32) = (50.0, 50.0);
+// pub const TOP_MARGIN: f32 = 0.1 * SCREEN_SIZE.1;
 
 pub const BLUE: Color = Color {
     r: 0.15,
@@ -71,15 +72,15 @@ pub const BUTTON_COLOR: Color = Color {
     a: 1.0,
 };
 pub const BUTTON_HOVERED_COLOR: Color = Color {
-    r: 0.15,
-    g: 0.15,
-    b: 0.15,
+    r: 0.2,
+    g: 0.2,
+    b: 0.2,
     a: 1.0,
 };
 pub const BUTTON_CLICKED_COLOR: Color = Color {
-    r: 0.5,
-    g: 0.5,
-    b: 0.5,
+    r: 0.4,
+    g: 0.4,
+    b: 0.4,
     a: 1.0,
 };
 pub const BUTTON_TEXT_COLOR: Color = Color {

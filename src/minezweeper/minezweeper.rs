@@ -92,7 +92,9 @@ impl EventHandler for Minezweeper {
             Screen::Menu(menu) => {
                 menu.mouse_button_down_event(x, y);
             }
-            Screen::Game(_grid) => {}
+            Screen::Game(game) => {
+                game.mouse_button_down_event(x, y);
+            }
         }
         Ok(())
     }
@@ -116,7 +118,9 @@ impl EventHandler for Minezweeper {
                     self.screen = Screen::Game(Game::new(grid_size, level_info.number_of_mines))
                 }
             }
-            Screen::Game(_grid) => {}
+            Screen::Game(game) => {
+                // game.mouse_button_up_event(x, y);
+            }
         }
         Ok(())
     }
@@ -133,13 +137,22 @@ impl EventHandler for Minezweeper {
             Screen::Menu(menu) => {
                 menu.mouse_motion_event(x, y);
             }
-            Screen::Game(_grid) => {}
+            Screen::Game(game) => {
+                game.mouse_motion_event(x, y)
+            }
+        }
+        Ok(())
+    }
+
+    fn mouse_enter_or_leave(&mut self, _ctx: &mut Context, entered: bool) -> GameResult {
+        if let Screen::Game(game) = &mut self.screen {
+            game.mouse_enter_or_leave(entered);
         }
         Ok(())
     }
 
     fn key_down_event(&mut self, ctx: &mut Context, input: KeyInput, _repeat: bool) -> GameResult {
-        if let Screen::Game(_grid) = &self.screen {
+        if let Screen::Game(_) = &self.screen {
             if let Some(KeyCode::Back) = input.keycode {
                 ctx.gfx.set_drawable_size(consts::SCREEN_SIZE.0, consts::SCREEN_SIZE.1)?;
                 self.screen = Screen::Menu(Menu::standard())

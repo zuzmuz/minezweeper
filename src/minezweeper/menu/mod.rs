@@ -14,11 +14,11 @@ pub struct Menu {
 }
 
 pub trait ButtonSize {
-    fn button_size(&self, button_width: f32, button_height: f32, horizontal_margin: f32, vertical_margin: f32) ->  graphics::Rect;
+    fn button_rect(&self, button_width: f32, button_height: f32, horizontal_margin: f32, vertical_margin: f32) ->  graphics::Rect;
 }
 
 impl ButtonSize for Level {
-    fn button_size(&self, button_width: f32, button_height: f32, horizontal_margin: f32, vertical_margin: f32) ->  graphics::Rect {
+    fn button_rect(&self, button_width: f32, button_height: f32, horizontal_margin: f32, vertical_margin: f32) ->  graphics::Rect {
         match self {
             Self::Easy => {
                 graphics::Rect::new(
@@ -58,7 +58,7 @@ impl Menu {
             buttons: LEVELS.map(|level|
                 Button::new(
                     level.level_info().name,
-                    level.button_size(button_width, button_height, horizontal_margin, vertical_margin)
+                    level.button_rect(button_width, button_height, horizontal_margin, vertical_margin)
                 )
             )
         }
