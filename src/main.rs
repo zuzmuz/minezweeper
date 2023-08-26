@@ -10,7 +10,6 @@ fn main() {
     let resource_dir = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
         let mut path = path::PathBuf::from(manifest_dir);
         path.push("resources");
-        println!("path11: {:?}", path);
         path
     } else {
         path::PathBuf::from("./resources")

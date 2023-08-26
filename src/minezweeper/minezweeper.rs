@@ -187,10 +187,13 @@ impl EventHandler for Minezweeper {
         Ok(())
     }
 
-    fn key_down_event(&mut self, _ctx: &mut Context, input: KeyInput, _repeat: bool) -> GameResult {
+    fn key_down_event(&mut self, ctx: &mut Context, input: KeyInput, _repeat: bool) -> GameResult {
         if let Screen::Game(_grid) = &self.screen {
             match input.keycode {
-                Some(KeyCode::Back) => self.screen = Screen::Menu(Menu::standard()),
+                Some(KeyCode::Back) => {
+                    ctx.gfx.set_drawable_size(consts::SCREEN_SIZE.0, consts::SCREEN_SIZE.1)?;
+                    self.screen = Screen::Menu(Menu::standard())
+                },
                 _default => {}
             }
         }
