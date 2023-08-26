@@ -53,10 +53,10 @@ impl ButtonSize for Level {
 }
 
 impl Menu {
-    pub fn standard(frame_width: f32, frame_height: f32) -> Self {
+    pub fn standard() -> Self {
         let (button_width, button_height) = consts::BUTTON_SIZE;
-        let horizontal_margin = 0.5 * (frame_width - button_width);
-        let vertical_margin = 0.25 * (frame_height - 3.0 * button_height);
+        let horizontal_margin = 0.5 * (consts::SCREEN_SIZE.0 - button_width);
+        let vertical_margin = 0.25 * (consts::SCREEN_SIZE.1 - 3.0 * button_height);
 
         Menu {
             buttons: LEVELS.map(|level|

@@ -16,12 +16,11 @@ fn main() {
         path::PathBuf::from("./resources")
     };
 
-    let (button_width, button_height) = consts::BUTTON_SIZE;
     let (mut ctx, event_loop) = ContextBuilder::new("minezweeper", "zzz")
         .window_setup(ggez::conf::WindowSetup::default().title("minezweeper"))
         .window_mode(
             ggez::conf::WindowMode::default()
-                .dimensions(1.5 * button_width, 4.0 * button_height)
+                .dimensions(consts::SCREEN_SIZE.0, consts::SCREEN_SIZE.1)
                 .borderless(true),
         )
         .add_resource_path(resource_dir)

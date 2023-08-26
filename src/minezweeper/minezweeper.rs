@@ -1,6 +1,7 @@
+use crate::consts;
 use ggez::graphics::{self, Color};
 use ggez::input::{
-    keyboard::KeyInput,
+    keyboard::{KeyCode, KeyInput},
     mouse::MouseButton,
 };
 use ggez::{event::EventHandler, Context, GameResult};
@@ -16,39 +17,33 @@ enum Screen {
 pub enum Level {
     Easy,
     Medium,
-    Hard
+    Hard,
 }
 
 pub struct LevelInfo {
     pub name: String,
     pub grid_size: (usize, usize),
-    pub number_of_mines: usize
+    pub number_of_mines: usize,
 }
 
 impl Level {
     pub fn level_info(&self) -> LevelInfo {
         match self {
-            Self::Easy => { 
-                LevelInfo {
-                    name: "Easy".to_string(),
-                    grid_size: (9, 9),
-                    number_of_mines: 10
-                }
-            }
-            Self::Medium => { 
-                LevelInfo {
-                    name: "Medium".to_string(),
-                    grid_size: (16, 16),
-                    number_of_mines: 40
-                }
-            }
-            Self::Hard => { 
-                LevelInfo {
-                    name: "Hard".to_string(),
-                    grid_size: (16, 40),
-                    number_of_mines: 99
-                }
-            }
+            Self::Easy => LevelInfo {
+                name: "Easy".to_string(),
+                grid_size: (9, 9),
+                number_of_mines: 10,
+            },
+            Self::Medium => LevelInfo {
+                name: "Medium".to_string(),
+                grid_size: (16, 16),
+                number_of_mines: 40,
+            },
+            Self::Hard => LevelInfo {
+                name: "Hard".to_string(),
+                grid_size: (30, 16),
+                number_of_mines: 99,
+            },
         }
     }
 }
@@ -58,11 +53,10 @@ pub struct Minezweeper {
 }
 
 impl Minezweeper {
-    pub fn new(ctx: &mut Context) -> Minezweeper {
+    pub fn new(_ctx: &mut Context) -> Minezweeper {
         // Load/create resources such as images here.
-        let (frame_width, frame_height) = ctx.gfx.drawable_size();
         Minezweeper {
-            screen: Screen::Menu(Menu::standard(frame_width, frame_height)),
+            screen: Screen::Menu(Menu::standard()),
         }
     }
 
@@ -104,15 +98,16 @@ impl Minezweeper {
     }
 
     // fn draw_menu(&self, ctx: &mut Context, canvas: &mut graphics::Canvas) -> GameResult {
-        
+
     // }
 }
 
 impl MenuDelegate for Minezweeper {
     fn level_selected(&mut self, level: Level) {
-        self.screen = Screen::Game(
-            Grid::new(level.level_info().grid_size, level.level_info().number_of_mines)
-        )
+        self.screen = Screen::Game(Grid::new(
+            level.level_info().grid_size,
+            level.level_info().number_of_mines,
+        ))
     }
 }
 
@@ -145,17 +140,15 @@ impl EventHandler for Minezweeper {
         match &mut self.screen {
             Screen::Menu(menu) => {
                 menu.mouse_button_down_event(x, y);
-            },
-            Screen::Game(_grid) => {
-                
             }
+            Screen::Game(_grid) => {}
         }
         Ok(())
     }
 
     fn mouse_button_up_event(
         &mut self,
-        _ctx: &mut Context,
+        ctx: &mut Context,
         _button: MouseButton,
         x: f32,
         y: f32,
@@ -163,14 +156,16 @@ impl EventHandler for Minezweeper {
         match &mut self.screen {
             Screen::Menu(menu) => {
                 if let Some(level) = menu.mouse_button_up_event(x, y) {
-                    self.screen = Screen::Game(
-                        Grid::new(level.level_info().grid_size, level.level_info().number_of_mines)
-                    )
+                    let level_info = level.level_info();
+                    let grid_size = level_info.grid_size;
+                    ctx.gfx.set_drawable_size(
+                        grid_size.0 as f32 * consts::QUAD_SIZE.0,
+                        grid_size.1 as f32 * consts::QUAD_SIZE.1,
+                    )?;
+                    self.screen = Screen::Game(Grid::new(grid_size, level_info.number_of_mines))
                 }
-            },
-            Screen::Game(_grid) => {
-                
             }
+            Screen::Game(_grid) => {}
         }
         Ok(())
     }
@@ -186,16 +181,19 @@ impl EventHandler for Minezweeper {
         match &mut self.screen {
             Screen::Menu(menu) => {
                 menu.mouse_motion_event(x, y);
-            },
-            Screen::Game(_grid) => {
-                
             }
+            Screen::Game(_grid) => {}
         }
         Ok(())
     }
 
     fn key_down_event(&mut self, _ctx: &mut Context, input: KeyInput, _repeat: bool) -> GameResult {
-        println!("Key pressed: {:?}, repeat: {}", input, _repeat);
+        if let Screen::Game(_grid) = &self.screen {
+            match input.keycode {
+                Some(KeyCode::Back) => self.screen = Screen::Menu(Menu::standard()),
+                _default => {}
+            }
+        }
         Ok(())
     }
 }

@@ -1,6 +1,7 @@
 use ggez::graphics::Color;
 
 pub const BUTTON_SIZE: (f32, f32) = (400.0, 100.0);
+pub const SCREEN_SIZE: (f32, f32) = (1.5 * BUTTON_SIZE.0, 4.0 * BUTTON_SIZE.1);
 pub const QUAD_SIZE: (f32, f32) = (50.0, 50.0);
 
 pub const BUTTON_COLOR: Color = Color {
