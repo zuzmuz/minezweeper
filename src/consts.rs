@@ -6,8 +6,8 @@ pub const QUAD_SIZE: (f32, f32) = (50.0, 50.0);
 // pub const TOP_MARGIN: f32 = 0.1 * SCREEN_SIZE.1;
 
 pub const BLUE: Color = Color {
-    r: 0.15,
-    g: 0.31,
+    r: 0.19,
+    g: 0.36,
     b: 0.99,
     a: 1.0,
 };
@@ -27,9 +27,9 @@ pub const RED: Color = Color {
 };
 
 pub const DARK_BLUE: Color = Color {
-    r: 0.10,
-    g: 0.15,
-    b: 0.62,
+    r: 0.25,
+    g: 0.18,
+    b: 0.74,
     a: 1.0,
 };
 
@@ -117,4 +117,11 @@ pub const FLAG_COLOR: Color = Color {
     g: 0.25,
     b: 0.25,
     a: 1.0,
+};
+
+pub const QUESTION_MARK_COLOR: Color = Color {
+    r: 0.3,
+    g: 0.8,
+    b: 0.5,
+    a: 1.0
 };

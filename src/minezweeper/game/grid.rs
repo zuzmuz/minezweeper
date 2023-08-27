@@ -204,12 +204,14 @@ impl Grid {
     pub fn toggle_flagged(&mut self, x: usize, y: usize) {
         if !self.grid[y * self.shape.0 + x].cleared {
             self.grid[y * self.shape.0 + x].flagged = !(self.grid[y * self.shape.0 + x].flagged);
+            self.grid[y * self.shape.0 + x].question_marked = false;
         }
     }
 
     pub fn toggle_question_marked(&mut self, x: usize, y: usize) {
         if !self.grid[y * self.shape.0 + x].cleared {
             self.grid[y * self.shape.0 + x].question_marked = !(self.grid[y * self.shape.0 + x].question_marked);
+            self.grid[y * self.shape.0 + x].flagged = false;
         }
     }
 

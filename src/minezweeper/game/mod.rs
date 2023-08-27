@@ -101,6 +101,22 @@ impl Game {
                     ], consts::FLAG_COLOR)?;
                     canvas.draw(&flag, DrawParam::default());
                 }
+                else if cell.question_marked {
+                    let color = consts::QUESTION_MARK_COLOR;
+                    let text = Text::new(
+                        TextFragment::new("?")
+                            .scale(PxScale::from(0.8 * consts::QUAD_SIZE.1))
+                            .font("SyneMono"),
+                    );
+
+                    let text_param = DrawParam::default()
+                        .dest(Point2 {
+                            x: rect.left() + 0.22 * consts::QUAD_SIZE.1,
+                            y: rect.top() + 0.03 * consts::QUAD_SIZE.1,
+                        })
+                        .color(color);
+                    canvas.draw(&text, text_param);
+                }
             }
         }
         Ok(())
