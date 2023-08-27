@@ -71,7 +71,7 @@ impl Minezweeper {
         let grid_size = level_info.grid_size;
         ctx.gfx.set_drawable_size(
             grid_size.0 as f32 * consts::QUAD_SIZE.0,
-            grid_size.1 as f32 * consts::QUAD_SIZE.1,
+            consts::QUAD_SIZE.1 + grid_size.1 as f32 * consts::QUAD_SIZE.1,
         )?;
         self.screen = Screen::Game(Game::new(grid_size, level_info.number_of_mines));
         Ok(())

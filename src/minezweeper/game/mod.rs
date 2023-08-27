@@ -23,17 +23,22 @@ impl Game {
     fn cell_rect(x: usize, y: usize) -> Rect {
         Rect::new(
             x as f32 * consts::QUAD_SIZE.0 + 0.1 * consts::QUAD_SIZE.0,
-            y as f32 * consts::QUAD_SIZE.1 + 0.1 * consts::QUAD_SIZE.1,
+            consts::QUAD_SIZE.1 + y as f32 * consts::QUAD_SIZE.1 + 0.1 * consts::QUAD_SIZE.1,
             consts::QUAD_SIZE.0 - 0.2 * consts::QUAD_SIZE.0,
             consts::QUAD_SIZE.1 - 0.2 * consts::QUAD_SIZE.1,
         )
     }
 
-    fn cell_position(x_pos: f32, y_pos: f32) -> (usize, usize) {
-        (
-            (x_pos / consts::QUAD_SIZE.0) as usize,
-            (y_pos / consts::QUAD_SIZE.1) as usize,
-        )
+    fn cell_position(x_pos: f32, y_pos: f32) -> Option<(usize, usize)> {
+        if y_pos - consts::QUAD_SIZE.1 < 0.0 {
+            None
+        }
+        else {
+            Some((
+                (x_pos / consts::QUAD_SIZE.0) as usize,
+                ((y_pos - consts::QUAD_SIZE.1)/ consts::QUAD_SIZE.1) as usize,
+            ))
+        }
     }
 
     pub fn new(shape: (usize, usize), number_of_mines: usize) -> Self {
@@ -123,37 +128,45 @@ impl Game {
     }
 
     pub fn mouse_motion_event(&mut self, x_pos: f32, y_pos: f32) {
-        let (cell_x, cell_y) = Self::cell_position(x_pos, y_pos);
-        self.grid.set_hovered(cell_x, cell_y, true);
-        if let Some((last_cell_x, last_cell_y)) = self.last_hovered_cell {
-            if last_cell_x != cell_x || last_cell_y != cell_y {
-                self.grid.set_hovered(last_cell_x, last_cell_y, false);
-                self.grid.set_clicked(last_cell_x, last_cell_y, false);
+        if let Some((cell_x, cell_y)) = Self::cell_position(x_pos, y_pos) {
+            self.grid.set_hovered(cell_x, cell_y, true);
+            if let Some((last_cell_x, last_cell_y)) = self.last_hovered_cell {
+                if last_cell_x != cell_x || last_cell_y != cell_y {
+                    self.grid.set_hovered(last_cell_x, last_cell_y, false);
+                    self.grid.set_clicked(last_cell_x, last_cell_y, false);
+                    self.last_hovered_cell = Some((cell_x, cell_y));
+                }
+            } else {
                 self.last_hovered_cell = Some((cell_x, cell_y));
             }
-        } else {
-            self.last_hovered_cell = Some((cell_x, cell_y));
+        }
+        else if let Some((last_cell_x, last_cell_y)) = self.last_hovered_cell {
+            self.grid.set_hovered(last_cell_x, last_cell_y, false);
+            self.grid.set_clicked(last_cell_x, last_cell_y, false);
+            self.last_hovered_cell = None;
         }
     }
 
     pub fn mouse_button_down_event(&mut self, x_pos: f32, y_pos: f32) {
-        let (cell_x, cell_y) = Self::cell_position(x_pos, y_pos);
-        self.grid.set_clicked(cell_x, cell_y, true);
+        if let Some((cell_x, cell_y)) = Self::cell_position(x_pos, y_pos) {
+            self.grid.set_clicked(cell_x, cell_y, true);
+        }
     }
 
     pub fn mouse_button_up_event(&mut self, x_pos: f32, y_pos: f32) -> GameState {
-        let (cell_x, cell_y) = Self::cell_position(x_pos, y_pos);
-        self.grid.set_clicked(cell_x, cell_y, false);
-        let cell = self.grid.get(cell_x, cell_y);
+        if let Some((cell_x, cell_y)) = Self::cell_position(x_pos, y_pos) {
+            self.grid.set_clicked(cell_x, cell_y, false);
+            let cell = self.grid.get(cell_x, cell_y);
 
-        if cell.cleared {
-            return GameState::Playing;
-        }
-        if let Err(_) = self.grid.set_cleared(cell_x, cell_y) {
-            return GameState::Lose;
-        }
-        if self.grid.all_cleared() {
-            return GameState::Win;
+            if cell.cleared {
+                return GameState::Playing;
+            }
+            if let Err(_) = self.grid.set_cleared(cell_x, cell_y) {
+                return GameState::Lose;
+            }
+            if self.grid.all_cleared() {
+                return GameState::Win;
+            }
         }
         GameState::Playing
     }
