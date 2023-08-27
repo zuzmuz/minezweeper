@@ -49,6 +49,23 @@ impl Game {
     }
 
     pub fn draw(&self, ctx: &mut Context, canvas: &mut Canvas) -> GameResult {
+
+        let color = consts::FLAG_COLOR;
+        let text = Text::new(
+            TextFragment::new(self.grid.get_number_of_remaining_mines().to_string())
+                .scale(PxScale::from(0.9 * consts::QUAD_SIZE.1))
+                .font("SyneMono"),
+        );
+
+        let text_param = DrawParam::default()
+            .dest(Point2 {
+                x: ((self.grid.get_shape().0 - 1) as f32) * consts::QUAD_SIZE.1,
+                y: 0.1 * consts::QUAD_SIZE.1,
+            })
+            .color(color);
+        canvas.draw(&text, text_param);
+
+
         let (grid_x, grid_y) = self.grid.get_shape();
         for x in 0..grid_x {
             for y in 0..grid_y {

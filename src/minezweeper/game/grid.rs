@@ -31,6 +31,7 @@ pub struct Grid {
     shape: (usize, usize),
     number_of_mines: usize,
     number_of_cleared: usize,
+    number_of_flags: isize,
     initialized: bool
 }
 
@@ -99,6 +100,7 @@ impl Grid {
             shape: shape,
             number_of_mines,
             number_of_cleared: 0,
+            number_of_flags: 0,
             initialized: false
         }
     }
@@ -191,10 +193,6 @@ impl Grid {
             return Err(());
         }
         self.number_of_cleared += 1;
-        println!(
-            "number of remaining uncleared {}",
-            self.shape.0 * self.shape.1 - self.number_of_cleared - self.number_of_mines
-        );
         if cell.value == 0 {
             self.clear_adjacent(x, y)?;
         }
@@ -204,6 +202,7 @@ impl Grid {
     pub fn toggle_flagged(&mut self, x: usize, y: usize) {
         if !self.grid[y * self.shape.0 + x].cleared {
             self.grid[y * self.shape.0 + x].flagged = !(self.grid[y * self.shape.0 + x].flagged);
+            self.number_of_flags += if self.grid[y * self.shape.0 + x].flagged { 1 } else { -1 };
             self.grid[y * self.shape.0 + x].question_marked = false;
         }
     }
@@ -225,6 +224,10 @@ impl Grid {
 
     pub fn get_shape(&self) -> (usize, usize) {
         self.shape
+    }
+
+    pub fn get_number_of_remaining_mines(&self) -> usize {
+        self.number_of_mines - self.number_of_flags as usize
     }
 
     #[allow(unused)]
