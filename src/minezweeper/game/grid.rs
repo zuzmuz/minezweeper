@@ -226,8 +226,8 @@ impl Grid {
         self.shape
     }
 
-    pub fn get_number_of_remaining_mines(&self) -> usize {
-        self.number_of_mines - self.number_of_flags as usize
+    pub fn get_number_of_remaining_mines(&self) -> isize {
+        self.number_of_mines as isize - self.number_of_flags
     }
 
     #[allow(unused)]
