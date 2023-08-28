@@ -198,6 +198,13 @@ impl Game {
         }
     }
 
+    fn move_from_to(&mut self, from: (usize, usize), to: (usize, usize)) {
+        self.grid.set_hovered(to.0, to.1, true);
+        self.last_hovered_cell = Some(to);
+        self.grid.set_hovered(from.0, from.1, false);
+        self.grid.set_clicked(from.0, from.1, false);
+    }
+
     pub fn handle(&mut self, action: Action) -> GameState {
 
         if let Some((x, y)) = self.last_hovered_cell {
@@ -228,34 +235,22 @@ impl Game {
             match direction {
                 Direction::Left => {
                     if x > 0 {
-                        self.grid.set_hovered(x-1, y, true);
-                        self.last_hovered_cell = Some((x-1, y));
-                        self.grid.set_hovered(x, y, false);
-                        self.grid.set_clicked(x, y, false);
+                        self.move_from_to((x, y), (x-1, y));
                     }
                 },
                 Direction::Right => {
                     if x < self.grid.get_shape().0 - 1 {
-                        self.grid.set_hovered(x+1, y, true);
-                        self.last_hovered_cell = Some((x+1, y));
-                        self.grid.set_hovered(x, y, false);
-                        self.grid.set_clicked(x, y, false);
+                        self.move_from_to((x, y), (x+1, y));
                     }
                 },
                 Direction::Up => {
                     if y > 0 {
-                        self.grid.set_hovered(x, y-1, true);
-                        self.last_hovered_cell = Some((x, y-1));
-                        self.grid.set_hovered(x, y, false);
-                        self.grid.set_clicked(x, y, false);
+                        self.move_from_to((x, y), (x, y-1));
                     }
                 },
                 Direction::Down => {
                     if y < self.grid.get_shape().1 - 1 {
-                        self.grid.set_hovered(x, y+1, true);
-                        self.last_hovered_cell = Some((x, y+1));
-                        self.grid.set_hovered(x, y, false);
-                        self.grid.set_clicked(x, y, false);
+                        self.move_from_to((x, y), (x, y+1))
                     }
                 },
             }
