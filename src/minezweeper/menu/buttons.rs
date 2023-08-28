@@ -1,5 +1,7 @@
 use crate::consts;
-use ggez::graphics::{Canvas, DrawMode, DrawParam, Mesh, PxScale, Rect, Text, TextFragment};
+use ggez::graphics::{
+    Canvas, DrawMode, DrawParam, Mesh, PxScale, Rect, Text, TextFragment, TextLayout,
+};
 use ggez::mint::Point2;
 use ggez::{Context, GameResult};
 
@@ -41,14 +43,15 @@ impl Button {
             color,
         )?;
         canvas.draw(&rectangle, param);
-        let text = Text::new(
+        let mut text = Text::new(
             TextFragment::new(self.text.clone())
-                .scale(PxScale::from(consts::BUTTON_SIZE.1))
+                .scale(PxScale::from(self.rect.h))
                 .font("SyneMono"),
         );
+        text.set_layout(TextLayout::center());
         let (x, y) = (
-            self.rect.left() + 0.055555 * consts::BUTTON_SIZE.0 * ((9 - self.text.len()) as f32),
-            self.rect.top(),
+            self.rect.left() + 0.5 * self.rect.w,
+            self.rect.top() + 0.5 * self.rect.h,
         );
 
         let text_param = DrawParam::default()

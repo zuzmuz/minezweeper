@@ -26,6 +26,7 @@ pub struct Game {
     game_state: GameState,
 }
 
+
 impl Game {
     fn cell_rect(x: usize, y: usize) -> Rect {
         Rect::new(
@@ -333,6 +334,7 @@ impl Game {
 
     fn lose(&mut self) -> GameState {
         self.game_state = GameState::Lose;
+        todo!("Show bombs when losing");
         GameState::Lose
     }
 }

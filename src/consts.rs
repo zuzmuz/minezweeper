@@ -1,8 +1,8 @@
 use ggez::graphics::Color;
 
 pub const BUTTON_SIZE: (f32, f32) = (400.0, 100.0);
-pub const SCREEN_SIZE: (f32, f32) = (1.3 * BUTTON_SIZE.0, 5.0 * BUTTON_SIZE.1);
-pub const QUAD_SIZE: (f32, f32) = (50.0, 50.0);
+pub const SCREEN_SIZE: (f32, f32) = (1.3 * BUTTON_SIZE.0, 6.0 * BUTTON_SIZE.1);
+pub const QUAD_SIZE: (f32, f32) = (BUTTON_SIZE.1 * 0.5, BUTTON_SIZE.1 * 0.5);
 // pub const TOP_MARGIN: f32 = 0.1 * SCREEN_SIZE.1;
 
 pub const BLUE: Color = Color {

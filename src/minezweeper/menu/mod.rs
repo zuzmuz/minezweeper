@@ -10,7 +10,8 @@ const LEVELS: [Level; 3] = [
 ];
 
 pub struct Menu {
-    buttons: [Button; 3]
+    buttons: [Button; 3],
+    setting_button: Button,
 }
 
 pub trait ButtonSize {
@@ -52,13 +53,22 @@ impl Menu {
     pub fn standard() -> Self {
         let (button_width, button_height) = consts::BUTTON_SIZE;
         let horizontal_margin = 0.5 * (consts::SCREEN_SIZE.0 - button_width);
-        let vertical_margin = 0.25 * (consts::SCREEN_SIZE.1 - 3.0 * button_height);
+        let vertical_margin = 0.25 * (consts::SCREEN_SIZE.1 - 3.5 * button_height);
 
         Menu {
             buttons: LEVELS.map(|level|
                 Button::new(
                     level.level_info().name,
                     level.button_rect(button_width, button_height, horizontal_margin, vertical_margin)
+                )
+            ),
+            setting_button: Button::new(
+                "*".to_string(),
+                graphics::Rect::new(
+                    consts::SCREEN_SIZE.0 * 0.5 - consts::QUAD_SIZE.0*0.5,
+                    3.0 * vertical_margin + 3.0 * button_height + button_height*0.33,
+                    consts::QUAD_SIZE.0,
+                    consts::QUAD_SIZE.1,
                 )
             )
         }
@@ -68,6 +78,7 @@ impl Menu {
         for button in self.buttons.iter() {
             button.draw(ctx, canvas, graphics::DrawParam::default())?;
         }
+        self.setting_button.draw(ctx, canvas, graphics::DrawParam::default())?;
         Ok(())
     }
 
