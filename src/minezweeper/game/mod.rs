@@ -1,4 +1,6 @@
 mod grid;
+use std::fmt::Display;
+
 use ggez::{
     graphics::{
         Canvas, DrawMode, DrawParam, Mesh, PxScale, Rect, Text, TextAlign, TextFragment, TextLayout,
@@ -13,11 +15,23 @@ use crate::{
     minezweeper::settings::{Action, Direction},
 };
 
-#[derive(Eq, PartialEq, Copy, Clone)]
+#[derive(Eq, PartialEq, Copy, Clone, Debug)]
 pub enum GameState {
-    Win,
-    Lose,
+    Won,
+    Lost,
     Playing,
+    Abandoned,
+}
+
+impl Display for GameState {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            GameState::Won => write!(f, "Won"),
+            GameState::Lost => write!(f, "Lost"),
+            GameState::Playing => write!(f, "Playing"),
+            GameState::Abandoned => write!(f, "Abandoned"),
+        }
+    }
 }
 
 pub struct Game {
@@ -82,8 +96,8 @@ impl Game {
             let color = consts::FLAG_COLOR;
             let mut text = Text::new(
                 TextFragment::new(match self.game_state {
-                    GameState::Lose => "LOST",
-                    GameState::Win => "WON",
+                    GameState::Lost => "LOST",
+                    GameState::Won => "WON",
                     _ => "",
                 })
                 .scale(PxScale::from(0.9 * consts::QUAD_SIZE.1))
@@ -338,8 +352,8 @@ impl Game {
     }
 
     fn win(&mut self) -> GameState {
-        self.game_state = GameState::Win;
-        GameState::Win
+        self.game_state = GameState::Won;
+        GameState::Won
     }
 
     fn lose(&mut self) -> GameState {
@@ -355,7 +369,7 @@ impl Game {
             }
         }
 
-        self.game_state = GameState::Lose;
-        GameState::Lose
+        self.game_state = GameState::Lost;
+        GameState::Lost
     }
 }

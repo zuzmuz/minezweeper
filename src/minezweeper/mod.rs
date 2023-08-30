@@ -5,7 +5,7 @@ mod settings;
 use crate::consts;
 use crate::minezweeper::{
     game::{Game, GameState},
-    menu::Menu,
+    menu::Menu, menu::Selected, menu::settings::Settings,
     settings::Controls,
     settings::Score,
 };
@@ -20,9 +20,10 @@ use ggez::{Context, GameResult};
 enum Screen {
     Menu(Menu),
     Game(Game),
+    Settings(Settings),
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Level {
     Easy,
     Medium,
@@ -89,11 +90,7 @@ impl Minezweeper {
         if let Some(level) = self.started_level {
             if let Err(err) = Score::new(
                 level,
-                if game_state == GameState::Win {
-                    true
-                } else {
-                    false
-                },
+                game_state,
                 0.0,
             )
             .write_to_file()
@@ -101,7 +98,7 @@ impl Minezweeper {
                 println!("Error writing score to file: {}", err);
             }
             else {
-                println!("Score written to file");
+                println!("Score written to file {:?}", game_state);
             }
             self.started_level = None;
         }
@@ -123,6 +120,9 @@ impl EventHandler for Minezweeper {
             Screen::Game(game) => {
                 game.draw(ctx, &mut canvas)?;
             }
+            Screen::Settings(settings) => {
+                settings.draw(ctx, &mut canvas)?;
+            }
         }
         canvas.finish(ctx)
     }
@@ -141,6 +141,9 @@ impl EventHandler for Minezweeper {
             Screen::Game(game) => {
                 game.mouse_button_down_event(x, y);
             }
+            Screen::Settings(_) => {
+                // settings.mouse_button_down_event(x, y);
+            }
         }
         Ok(())
     }
@@ -154,9 +157,10 @@ impl EventHandler for Minezweeper {
     ) -> GameResult {
         match &mut self.screen {
             Screen::Menu(menu) => {
-                if let Some(level) = menu.mouse_button_up_event(x, y) {
-                    let level = level.clone();
-                    self.start_game(level, ctx)?;
+                match menu.mouse_button_up_event(x, y) {
+                    Selected::Level(level) => self.start_game(level, ctx)?,
+                    Selected::Settings => self.screen = Screen::Settings(Settings::standard()),
+                    Selected::None => {}
                 }
             }
             Screen::Game(game) => {
@@ -164,7 +168,10 @@ impl EventHandler for Minezweeper {
                 if game_state != GameState::Playing {
                     self.end_game(game_state)
                 }
-            },
+            }
+            Screen::Settings(_) => {
+                
+            }
         }
         Ok(())
     }
@@ -178,10 +185,11 @@ impl EventHandler for Minezweeper {
         _dy: f32,
     ) -> GameResult {
         match &mut self.screen {
-            Screen::Menu(menu) => {
-                menu.mouse_motion_event(x, y);
-            }
+            Screen::Menu(menu) => menu.mouse_motion_event(x, y),
             Screen::Game(game) => game.mouse_motion_event(x, y),
+            Screen::Settings(_) => { 
+                //settings.mouse_motion_event(x, y), 
+            }
         }
         Ok(())
     }
@@ -207,6 +215,7 @@ impl EventHandler for Minezweeper {
                 Some(KeyCode::Back) => {
                     ctx.gfx
                         .set_drawable_size(consts::SCREEN_SIZE.0, consts::SCREEN_SIZE.1)?;
+                    self.end_game(GameState::Abandoned);
                     self.screen = Screen::Menu(Menu::standard())
                 }
                 Some(keycode) => {
@@ -216,7 +225,16 @@ impl EventHandler for Minezweeper {
                     }
                 },
                 None => {}
-            },
+            }
+            Screen::Settings(_) => match input.keycode {
+                Some(KeyCode::Back) => {
+                    ctx.gfx
+                        .set_drawable_size(consts::SCREEN_SIZE.0, consts::SCREEN_SIZE.1)?;
+                    self.end_game(GameState::Abandoned);
+                    self.screen = Screen::Menu(Menu::standard())
+                }
+                Some(_) | None => {}
+            }
         }
         if let Some(KeyCode::Escape) = input.keycode {
             ctx.request_quit();

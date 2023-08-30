@@ -5,6 +5,8 @@ use ggez::input::keyboard::KeyCode;
 use std::fs::OpenOptions;
 use std::io::Error;
 
+use super::game::GameState;
+
 pub enum Direction {
     Up,
     Down,
@@ -61,37 +63,94 @@ impl Controls {
     }
 }
 
+#[derive(Debug)]
 pub struct Score {
-    level: Level,
-    win: bool,
-    time: f32,
-    date_time: DateTime<Local>,
+    pub level: Level,
+    pub game_state: GameState,
+    pub time: f32,
+    pub date_time: DateTime<Local>,
 }
 
 impl Score {
-    pub fn new(level: Level, win: bool, time: f32) -> Self {
+    pub fn new(level: Level, game_state: GameState, time: f32) -> Self {
         Score {
             level,
-            win,
+            game_state,
             time,
             date_time: Local::now(),
         }
     }
 
+    pub fn all() -> Result<Vec<Self>, Error> {
+        let mut scores = Vec::new();
+        let mut reader = csv::Reader::from_path("scores.csv")?;
+        for result in reader.records() {
+            let record = result?;
+            let level_field = record
+                .get(0)
+                .ok_or(Error::new(std::io::ErrorKind::InvalidData, "Invalid level"))?;
+            let level = match level_field {
+                "Easy" => Some(Level::Easy),
+                "Medium" => Some(Level::Medium),
+                "Hard" => Some(Level::Hard),
+                _ => None,
+            }
+            .ok_or(Error::new(std::io::ErrorKind::InvalidData, "Invalid level"))?;
+
+            let game_state_field = record.get(1).ok_or(Error::new(
+                std::io::ErrorKind::InvalidData,
+                "Invalid game state",
+            ))?;
+            let game_state = match game_state_field {
+                "Won" => Some(GameState::Won),
+                "Lost" => Some(GameState::Lost),
+                "Abandoned" => Some(GameState::Abandoned),
+                _ => None,
+            }
+            .ok_or(Error::new(
+                std::io::ErrorKind::InvalidData,
+                "Invalid game state",
+            ))?;
+
+            let time: f32 = record
+                .get(2)
+                .ok_or(Error::new(std::io::ErrorKind::InvalidData, "Invalid time"))?
+                .parse()
+                .map_err(|_| Error::new(std::io::ErrorKind::InvalidData, "Invalid time"))?;
+
+            let date_time: DateTime<Local> = record
+                .get(3)
+                .ok_or(Error::new(
+                    std::io::ErrorKind::InvalidData,
+                    "Invalid date time",
+                ))?
+                .parse()
+                .map_err(|_| Error::new(std::io::ErrorKind::InvalidData, "Invalid date time"))?;
+
+            scores.push(Score {
+                level,
+                game_state,
+                time,
+                date_time,
+            });
+        }
+        Ok(scores)
+    }
+
     pub fn write_to_file(&self) -> Result<(), Error> {
-        let file = OpenOptions::new().write(true).append(true).open("scores.csv")?;
+        let file = OpenOptions::new()
+            .write(true)
+            .append(true)
+            .open("scores.csv")?;
         let mut csv_writer = WriterBuilder::new().from_writer(file);
 
         csv_writer.write_record(&[
             self.level.level_info().name,
-            if self.win {
-                "Win".to_string()
-            } else {
-                "Loss".to_string()
-            },
+            self.game_state.to_string(),
             self.time.to_string(),
             self.date_time.to_string(),
         ])?;
+        todo!("If file is created new must add the header");
         Ok(())
     }
 }

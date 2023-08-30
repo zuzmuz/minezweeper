@@ -1,4 +1,5 @@
 mod buttons;
+pub mod settings;
 use crate::{consts, minezweeper::Level};
 use buttons::Button;
 use ggez::{graphics::{self, Canvas}, GameResult, Context};
@@ -6,6 +7,12 @@ use ggez::{graphics::{self, Canvas}, GameResult, Context};
 const LEVELS: [Level; 3] = [
     Level::Easy, Level::Medium, Level::Hard
 ];
+
+pub enum Selected {
+    Level(Level),
+    Settings,
+    None,
+}
 
 pub struct Menu {
     buttons: [Button; 3],
@@ -88,19 +95,23 @@ impl Menu {
         for button in self.buttons.iter_mut() {
             button.clicked = button.point_inside(x, y);
         }
+        self.setting_button.clicked = self.setting_button.point_inside(x, y);
     }
 
     pub fn mouse_button_up_event(
         &self,
         x: f32,
         y: f32,
-    ) -> Option<&Level> {
+    ) -> Selected {
         for (i, button) in self.buttons.iter().enumerate() {
             if button.point_inside(x, y) {
-                return Some(&LEVELS[i]);
+                return Selected::Level(LEVELS[i]);
             }
         }
-        None
+        if self.setting_button.point_inside(x, y) {
+            return Selected::Settings;
+        }
+        Selected::None
     }
 
     pub fn mouse_motion_event(
@@ -113,6 +124,10 @@ impl Menu {
             if !button.hovered {
                 button.clicked = false
             }
+        }
+        self.setting_button.hovered = self.setting_button.point_inside(x, y);
+        if !self.setting_button.hovered {
+            self.setting_button.clicked = false
         }
     }
 }
