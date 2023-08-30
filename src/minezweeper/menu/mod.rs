@@ -1,9 +1,7 @@
 mod buttons;
-use crate::consts;
+use crate::{consts, minezweeper::Level};
 use buttons::Button;
 use ggez::{graphics::{self, Canvas}, GameResult, Context};
-
-use super::minezweeper::Level;
 
 const LEVELS: [Level; 3] = [
     Level::Easy, Level::Medium, Level::Hard

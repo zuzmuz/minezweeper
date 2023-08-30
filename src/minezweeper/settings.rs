@@ -1,4 +1,10 @@
+use crate::minezweeper::Level;
+use chrono::{DateTime, Local};
+use csv::WriterBuilder;
 use ggez::input::keyboard::KeyCode;
+use std::fs::File;
+
+use super::game::GameState;
 
 pub enum Direction {
     Up,
@@ -53,5 +59,43 @@ impl Controls {
             _ if keycode == self.clear_adjacent => Action::ClearAdjacent,
             _ => Action::None,
         }
-    } 
+    }
+}
+
+struct Score {
+    level: Level,
+    win: bool,
+    time: f32,
+    date_time: DateTime<Local>,
+}
+
+impl Score {
+    pub fn new(level: Level, win: bool, time: f32) -> Self {
+        Score {
+            level,
+            win,
+            time,
+            date_time: Local::now(),
+        }
+    }
+
+    pub fn write_to_file(&self) -> Result<(), ()> {
+        // let file = File::create("data.csv")?;
+
+        // Create a CSV writer
+        // let mut csv_writer = WriterBuilder::new().from_writer(file);
+
+        // Data to write to CSV
+        // let data = vec![("key1", "value1"), ("key2", "value2"), ("key3", "value3")];
+
+        // Write data to CSV
+        // for (key, value) in data {
+            // csv_writer.write_record(&[key, value])?;
+        // }
+
+        // Finish writing and flush the buffer
+        // csv_writer.flush()?;
+
+        Ok(())
+    }
 }

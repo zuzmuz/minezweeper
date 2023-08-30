@@ -1,5 +1,4 @@
 mod grid;
-
 use ggez::{
     graphics::{
         Canvas, DrawMode, DrawParam, Mesh, PxScale, Rect, Text, TextAlign, TextFragment, TextLayout,
@@ -11,7 +10,7 @@ use grid::Grid;
 
 use crate::{
     consts,
-    settings::{Action, Direction},
+    minezweeper::settings::{Action, Direction},
 };
 
 #[derive(Eq, PartialEq, Copy, Clone)]
@@ -20,12 +19,12 @@ pub enum GameState {
     Lose,
     Playing,
 }
+
 pub struct Game {
     grid: Grid,
     last_hovered_cell: Option<(usize, usize)>,
     game_state: GameState,
 }
-
 
 impl Game {
     fn cell_rect(x: usize, y: usize) -> Rect {

@@ -84,7 +84,6 @@ pub const BUTTON_CLICKED_COLOR: Color = Color {
     a: 1.0,
 };
 
-
 pub const BUTTON_CLEARED_COLOR: Color = Color {
     r: 0.18,
     g: 0.15,
@@ -104,7 +103,6 @@ pub const BUTTON_CLEARED_CLICKED_COLOR: Color = Color {
     a: 1.0,
 };
 
-
 pub const BUTTON_TEXT_COLOR: Color = Color {
     r: 0.85,
     g: 0.85,
@@ -123,5 +121,5 @@ pub const QUESTION_MARK_COLOR: Color = Color {
     r: 0.3,
     g: 0.8,
     b: 0.5,
-    a: 1.0
+    a: 1.0,
 };
