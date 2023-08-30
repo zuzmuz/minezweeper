@@ -139,6 +139,17 @@ impl Game {
                             })
                             .color(color);
                         canvas.draw(&text, text_param);
+                    } else if value == -1 {
+                        // Draw a mine
+                        let circle = Mesh::new_circle(
+                            ctx,
+                            DrawMode::fill(),
+                            rect.center(),
+                            0.2 * consts::QUAD_SIZE.1,
+                            1.0,
+                            consts::MINE_COLOR,
+                        )?;
+                        canvas.draw(&circle, DrawParam::default());
                     }
                 } else if cell.flagged {
                     //Draw a flag
@@ -332,8 +343,19 @@ impl Game {
     }
 
     fn lose(&mut self) -> GameState {
+        for x in 0..self.grid.get_shape().0 {
+            for y in 0..self.grid.get_shape().1 {
+                let cell = self.grid.get(x, y);
+                if cell.cleared {
+                    continue;
+                }
+                if cell.get_value() == -1 {
+                    self.grid.set_cleared(x, y);
+                }
+            }
+        }
+
         self.game_state = GameState::Lose;
-        todo!("Show bombs when losing");
         GameState::Lose
     }
 }

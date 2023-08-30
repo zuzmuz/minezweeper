@@ -123,3 +123,10 @@ pub const QUESTION_MARK_COLOR: Color = Color {
     b: 0.5,
     a: 1.0,
 };
+
+pub const MINE_COLOR: Color = Color {
+    r: 0.66,
+    g: 0.72,
+    b: 0.84,
+    a: 1.0,
+};
