@@ -241,7 +241,7 @@ impl Game {
             if cell.cleared {
                 return GameState::Playing;
             }
-            if let Err(_) = self.grid.set_cleared(cell_x, cell_y) {
+            if self.grid.set_cleared(cell_x, cell_y).is_none() {
                 return self.lose();
             }
             if self.grid.all_cleared() {
@@ -278,7 +278,7 @@ impl Game {
         if let Some((x, y)) = self.last_hovered_cell {
             match action {
                 Action::Clear => {
-                    if let Err(_) = self.grid.set_cleared(x, y) {
+                    if self.grid.set_cleared(x, y).is_none() {
                         return self.lose();
                     }
                     if self.grid.all_cleared() {
@@ -288,7 +288,7 @@ impl Game {
                 Action::Flag => self.grid.toggle_flagged(x, y),
                 Action::QuestionMark => self.grid.toggle_question_marked(x, y),
                 Action::ClearAdjacent => {
-                    if let Err(_) = self.grid.clear_adjacent(x, y) {
+                    if self.grid.clear_adjacent(x, y).is_none() {
                         return self.lose();
                     }
                     if self.grid.all_cleared() {

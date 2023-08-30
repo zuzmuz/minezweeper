@@ -143,13 +143,13 @@ impl Grid {
         number_of_flagged
     }
 
-    pub fn clear_adjacent(&mut self, x: usize, y: usize) -> Result<(), ()> {
+    pub fn clear_adjacent(&mut self, x: usize, y: usize) -> Option<()> {
         let cell = self.get(x, y);
         if !cell.cleared {
-            return Ok(());
+            return Some(());
         }
         if self.surrounding_flags(x, y) != cell.value {
-            return Ok(());
+            return Some(());
         }
 
         if x > 0 {
@@ -176,27 +176,27 @@ impl Grid {
         if x < self.shape.0 - 1 && y < self.shape.1 - 1 {
             self.set_cleared(x + 1, y + 1)?;
         }
-        Ok(())
+        Some(())
     }
 
-    pub fn set_cleared(&mut self, x: usize, y: usize) -> Result<(), ()> {
+    pub fn set_cleared(&mut self, x: usize, y: usize) -> Option<()> {
         if !self.initialized {
             self.init((x, y));
             self.initialized = true;
         }
         let cell = &mut self.grid[y * self.shape.0 + x];
         if cell.cleared || cell.flagged {
-            return Ok(());
+            return Some(());
         }
         cell.cleared = true;
         if cell.value == -1 {
-            return Err(());
+            return None;
         }
         self.number_of_cleared += 1;
         if cell.value == 0 {
             self.clear_adjacent(x, y)?;
         }
-        Ok(())
+        Some(())
     }
 
     pub fn toggle_flagged(&mut self, x: usize, y: usize) {
