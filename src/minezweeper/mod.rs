@@ -2,12 +2,12 @@ mod game;
 mod menu;
 mod settings;
 
-
 use crate::consts;
 use crate::minezweeper::{
     game::{Game, GameState},
     menu::Menu,
     settings::Controls,
+    settings::Score,
 };
 use ggez::event::EventHandler;
 use ggez::graphics::{self, Color};
@@ -60,6 +60,7 @@ impl Level {
 pub struct Minezweeper {
     screen: Screen,
     controls: Controls,
+    started_level: Option<Level>,
 }
 
 impl Minezweeper {
@@ -68,10 +69,12 @@ impl Minezweeper {
         Minezweeper {
             screen: Screen::Menu(Menu::standard()),
             controls: Controls::default(),
+            started_level: None,
         }
     }
 
     fn start_game(&mut self, level: Level, ctx: &mut Context) -> GameResult {
+        self.started_level = Some(level);
         let level_info = level.level_info();
         let grid_size = level_info.grid_size;
         ctx.gfx.set_drawable_size(
@@ -80,6 +83,28 @@ impl Minezweeper {
         )?;
         self.screen = Screen::Game(Game::new(grid_size, level_info.number_of_mines));
         Ok(())
+    }
+
+    fn end_game(&mut self, game_state: GameState) {
+        if let Some(level) = self.started_level {
+            if let Err(err) = Score::new(
+                level,
+                if game_state == GameState::Win {
+                    true
+                } else {
+                    false
+                },
+                0.0,
+            )
+            .write_to_file()
+            {
+                println!("Error writing score to file: {}", err);
+            }
+            else {
+                println!("Score written to file");
+            }
+            self.started_level = None;
+        }
     }
 }
 
@@ -134,14 +159,11 @@ impl EventHandler for Minezweeper {
                     self.start_game(level, ctx)?;
                 }
             }
-            Screen::Game(game) => match game.mouse_button_up_event(x, y) {
-                GameState::Win => {
-                    println!("win");
+            Screen::Game(game) => {
+                let game_state = game.mouse_button_up_event(x, y);
+                if game_state != GameState::Playing {
+                    self.end_game(game_state)
                 }
-                GameState::Lose => {
-                    println!("lose");
-                }
-                GameState::Playing => {}
             },
         }
         Ok(())
@@ -187,14 +209,11 @@ impl EventHandler for Minezweeper {
                         .set_drawable_size(consts::SCREEN_SIZE.0, consts::SCREEN_SIZE.1)?;
                     self.screen = Screen::Menu(Menu::standard())
                 }
-                Some(keycode) => match game.handle(self.controls.handle(keycode)) {
-                    GameState::Win => {
-                        println!("win");
+                Some(keycode) => {
+                    let game_state = game.handle(self.controls.handle(keycode));
+                    if game_state != GameState::Playing {
+                        self.end_game(game_state)
                     }
-                    GameState::Lose => {
-                        println!("lose");
-                    }
-                    GameState::Playing => {}
                 },
                 None => {}
             },

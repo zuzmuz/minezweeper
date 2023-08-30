@@ -2,9 +2,8 @@ use crate::minezweeper::Level;
 use chrono::{DateTime, Local};
 use csv::WriterBuilder;
 use ggez::input::keyboard::KeyCode;
-use std::fs::File;
-
-use super::game::GameState;
+use std::fs::OpenOptions;
+use std::io::Error;
 
 pub enum Direction {
     Up,
@@ -62,7 +61,7 @@ impl Controls {
     }
 }
 
-struct Score {
+pub struct Score {
     level: Level,
     win: bool,
     time: f32,
@@ -79,23 +78,20 @@ impl Score {
         }
     }
 
-    pub fn write_to_file(&self) -> Result<(), ()> {
-        // let file = File::create("data.csv")?;
+    pub fn write_to_file(&self) -> Result<(), Error> {
+        let file = OpenOptions::new().write(true).append(true).open("scores.csv")?;
+        let mut csv_writer = WriterBuilder::new().from_writer(file);
 
-        // Create a CSV writer
-        // let mut csv_writer = WriterBuilder::new().from_writer(file);
-
-        // Data to write to CSV
-        // let data = vec![("key1", "value1"), ("key2", "value2"), ("key3", "value3")];
-
-        // Write data to CSV
-        // for (key, value) in data {
-            // csv_writer.write_record(&[key, value])?;
-        // }
-
-        // Finish writing and flush the buffer
-        // csv_writer.flush()?;
-
+        csv_writer.write_record(&[
+            self.level.level_info().name,
+            if self.win {
+                "Win".to_string()
+            } else {
+                "Loss".to_string()
+            },
+            self.time.to_string(),
+            self.date_time.to_string(),
+        ])?;
         Ok(())
     }
 }
