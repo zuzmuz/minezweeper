@@ -93,7 +93,7 @@ impl Minezweeper {
                 game_state,
                 0.0,
             )
-            .write_to_file()
+            .save()
             {
                 println!("Error writing score to file: {}", err);
             }
@@ -170,7 +170,7 @@ impl EventHandler for Minezweeper {
                 }
             }
             Screen::Settings(_) => {
-                
+
             }
         }
         Ok(())
@@ -187,8 +187,8 @@ impl EventHandler for Minezweeper {
         match &mut self.screen {
             Screen::Menu(menu) => menu.mouse_motion_event(x, y),
             Screen::Game(game) => game.mouse_motion_event(x, y),
-            Screen::Settings(_) => { 
-                //settings.mouse_motion_event(x, y), 
+            Screen::Settings(_) => {
+                //settings.mouse_motion_event(x, y),
             }
         }
         Ok(())

@@ -1,11 +1,10 @@
+use super::game::GameState;
 use crate::minezweeper::Level;
 use chrono::{DateTime, Local};
 use csv::WriterBuilder;
 use ggez::input::keyboard::KeyCode;
-use std::fs::OpenOptions;
-use std::io::Error;
-
-use super::game::GameState;
+use rusqlite::{Connection, params};
+use std::{error::Error, fmt::Display, fs::OpenOptions};
 
 pub enum Direction {
     Up,
@@ -63,6 +62,27 @@ impl Controls {
     }
 }
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+enum ScoreError {
+    InvalidLevel,
+    InvalidGameState,
+    InvalidTime,
+    InvalidDateTime,
+}
+
+impl Display for ScoreError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ScoreError::InvalidLevel => write!(f, "Invalid level"),
+            ScoreError::InvalidGameState => write!(f, "Invalid game state"),
+            ScoreError::InvalidTime => write!(f, "Invalid time"),
+            ScoreError::InvalidDateTime => write!(f, "Invalid date time"),
+        }
+    }
+}
+
+impl Error for ScoreError {}
+
 #[derive(Debug)]
 pub struct Score {
     pub level: Level,
@@ -81,68 +101,109 @@ impl Score {
         }
     }
 
-    pub fn all() -> Result<Vec<Self>, Error> {
+    fn from(level: String, game_state: String, time: f32, date_time: String) -> Result<Self, ScoreError> {
+        Ok(Score {
+            level: match level.as_str() {
+                "Easy" => Level::Easy,
+                "Medium" => Level::Medium,
+                "Hard" => Level::Hard,
+                _ => return Err(ScoreError::InvalidLevel),
+            },
+            game_state: match game_state.as_str() {
+                "Won" => GameState::Won,
+                "Lost" => GameState::Lost,
+                "Abandoned" => GameState::Abandoned,
+                _ => return Err(ScoreError::InvalidGameState),
+            },
+            time,
+            date_time: date_time.parse().map_err(|_| ScoreError::InvalidDateTime)?,
+        })
+    }
+
+    #[allow(unused)]
+    fn from_csv() -> Result<Vec<Self>, Box<dyn Error>> {
         let mut scores = Vec::new();
         let mut reader = csv::Reader::from_path("scores.csv")?;
         for result in reader.records() {
             let record = result?;
-            let level_field = record
-                .get(0)
-                .ok_or(Error::new(std::io::ErrorKind::InvalidData, "Invalid level"))?;
-            let level = match level_field {
-                "Easy" => Some(Level::Easy),
-                "Medium" => Some(Level::Medium),
-                "Hard" => Some(Level::Hard),
-                _ => None,
-            }
-            .ok_or(Error::new(std::io::ErrorKind::InvalidData, "Invalid level"))?;
+            let level = record.get(0).ok_or(ScoreError::InvalidLevel)?;
 
-            let game_state_field = record.get(1).ok_or(Error::new(
-                std::io::ErrorKind::InvalidData,
-                "Invalid game state",
-            ))?;
-            let game_state = match game_state_field {
-                "Won" => Some(GameState::Won),
-                "Lost" => Some(GameState::Lost),
-                "Abandoned" => Some(GameState::Abandoned),
-                _ => None,
-            }
-            .ok_or(Error::new(
-                std::io::ErrorKind::InvalidData,
-                "Invalid game state",
-            ))?;
-
+            let game_state = record.get(1).ok_or(ScoreError::InvalidGameState)?;
+            
             let time: f32 = record
                 .get(2)
-                .ok_or(Error::new(std::io::ErrorKind::InvalidData, "Invalid time"))?
+                .ok_or(ScoreError::InvalidTime)?
                 .parse()
-                .map_err(|_| Error::new(std::io::ErrorKind::InvalidData, "Invalid time"))?;
+                .map_err(|_| ScoreError::InvalidTime)?;
 
-            let date_time: DateTime<Local> = record
-                .get(3)
-                .ok_or(Error::new(
-                    std::io::ErrorKind::InvalidData,
-                    "Invalid date time",
-                ))?
-                .parse()
-                .map_err(|_| Error::new(std::io::ErrorKind::InvalidData, "Invalid date time"))?;
+            let date_time = record.get(3).ok_or(ScoreError::InvalidDateTime)?;
 
-            scores.push(Score {
-                level,
-                game_state,
-                time,
-                date_time,
-            });
+            scores.push(Score::from(level.to_string(), game_state.to_string(), time, date_time.to_string())?);
         }
         Ok(scores)
     }
 
-    pub fn write_to_file(&self) -> Result<(), Error> {
+    fn get_sqlite_con() -> Result<Connection, Box<dyn Error>> {
+        let new_file = !std::path::Path::new("scores.db").exists();
+        let con = Connection::open("scores.db")?;
+        
+        if new_file {
+            con.execute(
+                "CREATE TABLE score (
+                    id   INTEGER PRIMARY KEY,
+                    level TEXT NOT NULL,
+                    game_state TEXT NOT NULL,
+                    time REAL NOT NULL,
+                    date_time TEXT NOT NULL
+                )",
+                (), // empty list of parameters.
+            )?;
+        }
+
+        Ok(con)
+    }
+
+
+    fn from_sqlite() -> Result<Vec<Self>, Box<dyn Error>> {
+        
+        let con = Self::get_sqlite_con()?;
+
+        let mut stmt = con.prepare("SELECT level, game_state, time, date_time FROM score")?;
+        let scores_query = stmt.query_map([], |row| {
+            Ok(Score::from(
+                row.get(0)?,
+                row.get(1)?,
+                row.get(2)?,
+                row.get(3)?,
+            ))
+        })?;
+        
+        let mut scores = Vec::new();
+        for score in scores_query {
+            scores.push(score??);
+        }
+        Ok(scores)
+    }
+
+    pub fn all() -> Result<Vec<Self>, Box<dyn Error>> {
+        Self::from_sqlite()
+    }
+
+    #[allow(unused)]
+    fn save_to_csv(&self) -> Result<(), Box<dyn Error>> {
+        let new_file = !std::path::Path::new("scores.csv").exists();
+
         let file = OpenOptions::new()
             .write(true)
             .append(true)
+            .create(true)
             .open("scores.csv")?;
+
         let mut csv_writer = WriterBuilder::new().from_writer(file);
+
+        if new_file {
+            csv_writer.write_record(&["level", "game_state", "time", "date_time"])?;
+        }
 
         csv_writer.write_record(&[
             self.level.level_info().name,
@@ -150,7 +211,20 @@ impl Score {
             self.time.to_string(),
             self.date_time.to_string(),
         ])?;
-        todo!("If file is created new must add the header");
         Ok(())
+    }
+
+    fn save_to_sqlite(&self) -> Result<(), Box<dyn Error>> {
+        let con = Self::get_sqlite_con()?;
+
+        con.execute(
+            "INSERT INTO score (level, game_state, time, date_time) VALUES (?1, ?2, ?3, ?4)",
+            params![&self.level.level_info().name, &self.game_state.to_string(), self.time, &self.date_time.to_string()],
+        )?;
+        Ok(())
+    }
+
+    pub fn save(&self) -> Result<(), Box<dyn Error>> {
+        self.save_to_sqlite()
     }
 }
