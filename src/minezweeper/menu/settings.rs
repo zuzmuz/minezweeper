@@ -27,40 +27,34 @@ impl Settings {
         match Score::all() {
             Ok(scores) => {
                 println!("{:?}", scores);
-                let mut stats: HashMap<Level, Statistic> =
-                    LEVELS.into_iter().fold(HashMap::new(), |mut acc, level| {
-                        acc.insert(
-                            level,
-                            Statistic {
-                                played: 0,
-                                won: 0,
-                                lost: 0,
-                                abandoned: 0,
-                                best_time: None,
-                                average_time: None,
-                            },
-                        );
-                        acc
-                    });
-
-                for score in scores {
-                    stats.get_mut(&score.level).unwrap().played += 1;
-                    match score.game_state {
-                        GameState::Won => {
-                            stats.get_mut(&score.level).unwrap().won += 1;
-                        }
-                        GameState::Lost => {
-                            stats.get_mut(&score.level).unwrap().lost += 1;
-                        }
-                        GameState::Abandoned => {
-                            stats.get_mut(&score.level).unwrap().abandoned += 1;
-                        }
-                        _ => {}
-                    }
-                }
-
-                for level in LEVELS {
-                    println!("{:?}", stats.get(&level));
+                let mut stats: HashMap<Level, Statistic> = HashMap::new();
+                for level in LEVELS.iter() {
+                    let scores = scores.iter().filter(|score| score.level == *level);
+                    let won_scores = scores
+                        .clone()
+                        .filter(|score| score.game_state == GameState::Won);
+                    let won_scores_count = won_scores.clone().count();
+                    stats.insert(
+                        *level,
+                        Statistic {
+                            played: scores.clone().count(),
+                            won: won_scores_count,
+                            lost: scores
+                                .clone()
+                                .filter(|score| score.game_state == GameState::Lost)
+                                .count(),
+                            abandoned: scores
+                                .filter(|score| score.game_state == GameState::Abandoned)
+                                .count(),
+                            best_time: won_scores
+                                .clone()
+                                .min_by(|&a, &b| a.time.total_cmp(&b.time))
+                                .map(|score| score.time),
+                            average_time: won_scores
+                                .fold(None, |acc, score| Some(acc.unwrap_or(0.0) + score.time))
+                                .map(|f| f / (won_scores_count as f32)),
+                        },
+                    );
                 }
 
                 Settings {
@@ -76,21 +70,18 @@ impl Settings {
                     error: None,
                 }
             }
-            Err(error) => {
-                println!("{:?}", error);
-                Settings {
-                    total_stats: Statistic {
-                        played: 0,
-                        won: 0,
-                        lost: 0,
-                        abandoned: 0,
-                        best_time: None,
-                        average_time: None,
-                    },
-                    stats: HashMap::new(),
-                    error: Some(error.to_string()),
-                }
-            }
+            Err(error) => Settings {
+                total_stats: Statistic {
+                    played: 0,
+                    won: 0,
+                    lost: 0,
+                    abandoned: 0,
+                    best_time: None,
+                    average_time: None,
+                },
+                stats: HashMap::new(),
+                error: Some(error.to_string()),
+            },
         }
     }
 
@@ -247,8 +238,14 @@ impl Settings {
                     stat.lost.to_string().as_str(),
                     stat.abandoned.to_string().as_str(),
                     format!("{:.1}%", 100.0 * (stat.won as f32) / (stat.played as f32)).as_str(),
-                    stat.best_time.map(|f| f.to_string()).unwrap_or("".to_string()).as_str(),
-                    stat.average_time.map(|f| f.to_string()).unwrap_or("".to_string()).as_str(),
+                    stat.best_time
+                        .map(|f| format!("{:.1}", f))
+                        .unwrap_or("".to_string())
+                        .as_str(),
+                    stat.average_time
+                        .map(|f| format!("{:.1}", f))
+                        .unwrap_or("".to_string())
+                        .as_str(),
                     consts::SETTINGS_SCREEN_SIZE.1 * (0.45 + (i as f32) * 0.2),
                 )?;
             }

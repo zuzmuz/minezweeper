@@ -1,5 +1,6 @@
 mod grid;
 use std::fmt::Display;
+use std::time::Instant;
 
 use ggez::{
     graphics::{Canvas, DrawMode, DrawParam, Mesh, Rect, TextAlign, TextLayout},
@@ -38,6 +39,8 @@ pub struct Game {
     grid: Grid,
     last_hovered_cell: Option<(usize, usize)>,
     game_state: GameState,
+    time: Instant,
+    final_time: f32,
 }
 
 impl Game {
@@ -66,6 +69,8 @@ impl Game {
             grid: Grid::new(shape, number_of_mines),
             last_hovered_cell: None,
             game_state: GameState::Playing,
+            time: Instant::now(),
+            final_time: 0.0
         }
     }
 
@@ -104,6 +109,29 @@ impl Game {
                 ),
                 0.9 * consts::QUAD_SIZE.1,
                 TextLayout::center(),
+                consts::FLAG_COLOR,
+            )?;
+            draw_text(
+                canvas,
+                format!("{:.0}", self.final_time).as_str(),
+                (0.1 * consts::QUAD_SIZE.1, 0.5 * consts::QUAD_SIZE.1),
+                0.9 * consts::QUAD_SIZE.1,
+                TextLayout {
+                    h_align: TextAlign::Begin,
+                    v_align: TextAlign::Middle,
+                },
+                consts::FLAG_COLOR,
+            )?;
+        } else {
+            draw_text(
+                canvas,
+                format!("{:.0}", Instant::now().duration_since(self.time).as_secs_f32()).as_str(),
+                (0.1 * consts::QUAD_SIZE.1, 0.5 * consts::QUAD_SIZE.1),
+                0.9 * consts::QUAD_SIZE.1,
+                TextLayout {
+                    h_align: TextAlign::Begin,
+                    v_align: TextAlign::Middle,
+                },
                 consts::FLAG_COLOR,
             )?;
         }
@@ -341,6 +369,7 @@ impl Game {
 
     fn win(&mut self) -> GameState {
         self.game_state = GameState::Won;
+        self.final_time = Instant::now().duration_since(self.time).as_secs_f32();
         GameState::Won
     }
 
@@ -356,8 +385,12 @@ impl Game {
                 }
             }
         }
-
+        self.final_time = Instant::now().duration_since(self.time).as_secs_f32();
         self.game_state = GameState::Lost;
         GameState::Lost
+    }
+
+    pub fn get_final_time(&self) -> f32 {
+        self.final_time
     }
 }

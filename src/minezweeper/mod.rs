@@ -12,9 +12,7 @@ use crate::minezweeper::{
     settings::Score,
 };
 use ggez::event::EventHandler;
-use ggez::graphics::{
-    self, Canvas, Color, DrawParam, PxScale, Text, TextFragment, TextLayout,
-};
+use ggez::graphics::{self, Canvas, Color, DrawParam, PxScale, Text, TextFragment, TextLayout};
 use ggez::input::{
     keyboard::{KeyCode, KeyInput},
     mouse::MouseButton,
@@ -115,10 +113,12 @@ impl Minezweeper {
 
     fn end_game(&mut self, game_state: GameState) {
         if let Some(level) = self.started_level {
-            if let Err(err) = Score::new(level, game_state, 0.0).save() {
-                println!("Error writing score to file: {}", err);
-            } else {
-                println!("Score written to file {:?}", game_state);
+            if let Screen::Game(game) = &self.screen {
+                if let Err(err) = Score::new(level, game_state, game.get_final_time()).save() {
+                    println!("Error writing score to file: {}", err);
+                } else {
+                    println!("Score written to file {:?}", game_state);
+                }
             }
             self.started_level = None;
         }
