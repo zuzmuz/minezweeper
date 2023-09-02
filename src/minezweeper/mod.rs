@@ -123,6 +123,15 @@ impl Minezweeper {
             self.started_level = None;
         }
     }
+
+    fn open_settings(&mut self, ctx: &mut Context) -> GameResult {
+        ctx.gfx.set_drawable_size(
+            consts::SETTINGS_SCREEN_SIZE.0,
+            consts::SETTINGS_SCREEN_SIZE.1,
+        )?;
+        self.screen = Screen::Settings(Settings::standard());
+        Ok(())
+    }
 }
 
 impl EventHandler for Minezweeper {
@@ -178,7 +187,7 @@ impl EventHandler for Minezweeper {
         match &mut self.screen {
             Screen::Menu(menu) => match menu.mouse_button_up_event(x, y) {
                 Selected::Level(level) => self.start_game(level, ctx)?,
-                Selected::Settings => self.screen = Screen::Settings(Settings::standard()),
+                Selected::Settings => self.open_settings(ctx)?,
                 Selected::None => {}
             },
             Screen::Game(game) => {
