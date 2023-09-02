@@ -1,7 +1,6 @@
 use crate::consts;
-use ggez::graphics::{
-    Canvas, DrawMode, DrawParam, Mesh, PxScale, Rect, Text, TextFragment, TextLayout,
-};
+use crate::minezweeper::draw_text;
+use ggez::graphics::{Canvas, DrawMode, DrawParam, Mesh, Rect, TextLayout};
 use ggez::mint::Point2;
 use ggez::{Context, GameResult};
 
@@ -43,21 +42,19 @@ impl Button {
             color,
         )?;
         canvas.draw(&rectangle, param);
-        let mut text = Text::new(
-            TextFragment::new(self.text.clone())
-                .scale(PxScale::from(self.rect.h))
-                .font("SyneMono"),
-        );
-        text.set_layout(TextLayout::center());
-        let (x, y) = (
-            self.rect.left() + 0.5 * self.rect.w,
-            self.rect.top() + 0.5 * self.rect.h,
-        );
 
-        let text_param = DrawParam::default()
-            .dest(Point2 { x: x, y: y })
-            .color(consts::BUTTON_TEXT_COLOR);
-        canvas.draw(&text, text_param);
+        draw_text(
+            canvas,
+            self.text.clone().as_str(),
+            (
+                self.rect.left() + 0.5 * self.rect.w,
+                self.rect.top() + 0.5 * self.rect.h,
+            ),
+            self.rect.h,
+            TextLayout::center(),
+            consts::BUTTON_TEXT_COLOR,
+        )?;
+
         Ok(())
     }
 

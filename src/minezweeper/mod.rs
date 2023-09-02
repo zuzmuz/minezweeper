@@ -5,16 +5,21 @@ mod settings;
 use crate::consts;
 use crate::minezweeper::{
     game::{Game, GameState},
-    menu::Menu, menu::Selected, menu::settings::Settings,
+    menu::settings::Settings,
+    menu::Menu,
+    menu::Selected,
     settings::Controls,
     settings::Score,
 };
 use ggez::event::EventHandler;
-use ggez::graphics::{self, Color};
+use ggez::graphics::{
+    self, Canvas, Color, DrawParam, PxScale, Text, TextFragment, TextLayout,
+};
 use ggez::input::{
     keyboard::{KeyCode, KeyInput},
     mouse::MouseButton,
 };
+use ggez::mint::Point2;
 use ggez::{Context, GameResult};
 
 enum Screen {
@@ -28,6 +33,28 @@ pub enum Level {
     Easy,
     Medium,
     Hard,
+}
+
+pub fn draw_text(
+    canvas: &mut Canvas,
+    text: &str,
+    pos: (f32, f32),
+    text_size: f32,
+    text_layout: TextLayout,
+    color: Color,
+) -> GameResult {
+    let mut text = Text::new(
+        TextFragment::new(text)
+            .scale(PxScale::from(text_size))
+            .font("SyneMono"),
+    );
+    text.set_layout(text_layout);
+    let (x, y) = pos;
+    let text_param = DrawParam::default()
+        .dest(Point2 { x: x, y: y })
+        .color(color);
+    canvas.draw(&text, text_param);
+    Ok(())
 }
 
 pub struct LevelInfo {
@@ -88,16 +115,9 @@ impl Minezweeper {
 
     fn end_game(&mut self, game_state: GameState) {
         if let Some(level) = self.started_level {
-            if let Err(err) = Score::new(
-                level,
-                game_state,
-                0.0,
-            )
-            .save()
-            {
+            if let Err(err) = Score::new(level, game_state, 0.0).save() {
                 println!("Error writing score to file: {}", err);
-            }
-            else {
+            } else {
                 println!("Score written to file {:?}", game_state);
             }
             self.started_level = None;
@@ -156,22 +176,18 @@ impl EventHandler for Minezweeper {
         y: f32,
     ) -> GameResult {
         match &mut self.screen {
-            Screen::Menu(menu) => {
-                match menu.mouse_button_up_event(x, y) {
-                    Selected::Level(level) => self.start_game(level, ctx)?,
-                    Selected::Settings => self.screen = Screen::Settings(Settings::standard()),
-                    Selected::None => {}
-                }
-            }
+            Screen::Menu(menu) => match menu.mouse_button_up_event(x, y) {
+                Selected::Level(level) => self.start_game(level, ctx)?,
+                Selected::Settings => self.screen = Screen::Settings(Settings::standard()),
+                Selected::None => {}
+            },
             Screen::Game(game) => {
                 let game_state = game.mouse_button_up_event(x, y);
                 if game_state != GameState::Playing {
                     self.end_game(game_state)
                 }
             }
-            Screen::Settings(_) => {
-
-            }
+            Screen::Settings(_) => {}
         }
         Ok(())
     }
@@ -223,9 +239,9 @@ impl EventHandler for Minezweeper {
                     if game_state != GameState::Playing {
                         self.end_game(game_state)
                     }
-                },
+                }
                 None => {}
-            }
+            },
             Screen::Settings(_) => match input.keycode {
                 Some(KeyCode::Back) => {
                     ctx.gfx
@@ -234,7 +250,7 @@ impl EventHandler for Minezweeper {
                     self.screen = Screen::Menu(Menu::standard())
                 }
                 Some(_) | None => {}
-            }
+            },
         }
         if let Some(KeyCode::Escape) = input.keycode {
             ctx.request_quit();

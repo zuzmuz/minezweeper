@@ -2,9 +2,7 @@ mod grid;
 use std::fmt::Display;
 
 use ggez::{
-    graphics::{
-        Canvas, DrawMode, DrawParam, Mesh, PxScale, Rect, Text, TextAlign, TextFragment, TextLayout,
-    },
+    graphics::{Canvas, DrawMode, DrawParam, Mesh, Rect, TextAlign, TextLayout},
     mint::Point2,
     Context, GameResult,
 };
@@ -14,6 +12,8 @@ use crate::{
     consts,
     minezweeper::settings::{Action, Direction},
 };
+
+use crate::minezweeper::draw_text;
 
 #[derive(Eq, PartialEq, Copy, Clone, Debug)]
 pub enum GameState {
@@ -72,46 +72,40 @@ impl Game {
     pub fn draw(&self, ctx: &mut Context, canvas: &mut Canvas) -> GameResult {
         let (grid_x, grid_y) = self.grid.get_shape();
 
-        let color = consts::FLAG_COLOR;
-        let mut text = Text::new(
-            TextFragment::new(self.grid.get_number_of_remaining_mines().to_string())
-                .scale(PxScale::from(0.9 * consts::QUAD_SIZE.1))
-                .font("SyneMono"),
-        );
-
-        text.set_layout(TextLayout {
-            h_align: TextAlign::End,
-            v_align: TextAlign::Middle,
-        });
-
-        let text_param = DrawParam::default()
-            .dest(Point2 {
-                x: (self.grid.get_shape().0 as f32 - 0.1) * consts::QUAD_SIZE.1,
-                y: 0.5 * consts::QUAD_SIZE.1,
-            })
-            .color(color);
-        canvas.draw(&text, text_param);
+        draw_text(
+            canvas,
+            self.grid
+                .get_number_of_remaining_mines()
+                .to_string()
+                .as_str(),
+            (
+                (self.grid.get_shape().0 as f32 - 0.1) * consts::QUAD_SIZE.1,
+                0.5 * consts::QUAD_SIZE.1,
+            ),
+            0.9 * consts::QUAD_SIZE.1,
+            TextLayout {
+                h_align: TextAlign::End,
+                v_align: TextAlign::Middle,
+            },
+            consts::FLAG_COLOR,
+        )?;
 
         if self.game_state != GameState::Playing {
-            let color = consts::FLAG_COLOR;
-            let mut text = Text::new(
-                TextFragment::new(match self.game_state {
+            draw_text(
+                canvas,
+                match self.game_state {
                     GameState::Lost => "LOST",
                     GameState::Won => "WON",
                     _ => "",
-                })
-                .scale(PxScale::from(0.9 * consts::QUAD_SIZE.1))
-                .font("SyneMono"),
-            );
-            text.set_layout(TextLayout::center());
-
-            let text_param = DrawParam::default()
-                .dest(Point2 {
-                    x: (grid_x as f32) * consts::QUAD_SIZE.0 * 0.5,
-                    y: consts::QUAD_SIZE.1 as f32 * 0.5,
-                })
-                .color(color);
-            canvas.draw(&text, text_param);
+                },
+                (
+                    (grid_x as f32) * consts::QUAD_SIZE.0 * 0.5,
+                    consts::QUAD_SIZE.1 as f32 * 0.5,
+                ),
+                0.9 * consts::QUAD_SIZE.1,
+                TextLayout::center(),
+                consts::FLAG_COLOR,
+            )?;
         }
 
         for x in 0..grid_x {
@@ -139,20 +133,18 @@ impl Game {
                     let value = cell.get_value();
                     if value > 0 {
                         let color = consts::NUMBER_COLORS[(value - 1) as usize];
-                        let mut text = Text::new(
-                            TextFragment::new(value.to_string())
-                                .scale(PxScale::from(0.8 * consts::QUAD_SIZE.1))
-                                .font("SyneMono"),
-                        );
-                        text.set_layout(TextLayout::center());
 
-                        let text_param = DrawParam::default()
-                            .dest(Point2 {
-                                x: rect.left() + 0.4 * consts::QUAD_SIZE.1,
-                                y: rect.top() + 0.4 * consts::QUAD_SIZE.1,
-                            })
-                            .color(color);
-                        canvas.draw(&text, text_param);
+                        draw_text(
+                            canvas,
+                            value.to_string().as_str(),
+                            (
+                                rect.left() + 0.4 * consts::QUAD_SIZE.1,
+                                rect.top() + 0.4 * consts::QUAD_SIZE.1,
+                            ),
+                            0.8 * consts::QUAD_SIZE.1,
+                            TextLayout::center(),
+                            color,
+                        )?;
                     } else if value == -1 {
                         // Draw a mine
                         let circle = Mesh::new_circle(
@@ -203,21 +195,17 @@ impl Game {
                     )?;
                     canvas.draw(&flag, DrawParam::default());
                 } else if cell.question_marked {
-                    let color = consts::QUESTION_MARK_COLOR;
-                    let mut text = Text::new(
-                        TextFragment::new("?")
-                            .scale(PxScale::from(0.8 * consts::QUAD_SIZE.1))
-                            .font("SyneMono"),
-                    );
-                    text.set_layout(TextLayout::center());
-
-                    let text_param = DrawParam::default()
-                        .dest(Point2 {
-                            x: rect.left() + 0.4 * consts::QUAD_SIZE.1,
-                            y: rect.top() + 0.4 * consts::QUAD_SIZE.1,
-                        })
-                        .color(color);
-                    canvas.draw(&text, text_param);
+                    draw_text(
+                        canvas,
+                        "?",
+                        (
+                            rect.left() + 0.4 * consts::QUAD_SIZE.1,
+                            rect.top() + 0.4 * consts::QUAD_SIZE.1,
+                        ),
+                        0.8 * consts::QUAD_SIZE.1,
+                        TextLayout::center(),
+                        consts::QUESTION_MARK_COLOR,
+                    )?;
                 }
             }
         }
