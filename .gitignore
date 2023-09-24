@@ -2,3 +2,4 @@ target
 Cargo.lock
 scores.csv
 scores.db
+.DS_Store

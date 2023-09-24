@@ -26,7 +26,6 @@ impl Settings {
     pub fn standard() -> Self {
         match Score::all() {
             Ok(scores) => {
-                println!("{:?}", scores);
                 let mut stats: HashMap<Level, Statistic> = HashMap::new();
                 for level in LEVELS.iter() {
                     let scores = scores.iter().filter(|score| score.level == *level);
