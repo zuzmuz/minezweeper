@@ -1,5 +1,6 @@
 mod buttons;
 pub mod settings;
+mod scores;
 use crate::{consts, minezweeper::Level};
 use buttons::Button;
 use ggez::{graphics::{self, Canvas}, GameResult, Context};
