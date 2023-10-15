@@ -99,7 +99,7 @@ impl Scores {
         draw_text(
             canvas,
             played,
-            (consts::SETTINGS_SCREEN_SIZE.0 * 0.22, y_pos),
+            (consts::SCORES_SCREEN_SIZE.0 * 0.22, y_pos),
             0.7 * consts::QUAD_SIZE.1,
             TextLayout::center(),
             consts::BUTTON_TEXT_COLOR,
@@ -107,7 +107,7 @@ impl Scores {
         draw_text(
             canvas,
             won,
-            (consts::SETTINGS_SCREEN_SIZE.0 * 0.335, y_pos),
+            (consts::SCORES_SCREEN_SIZE.0 * 0.335, y_pos),
             0.7 * consts::QUAD_SIZE.1,
             TextLayout::center(),
             consts::BUTTON_TEXT_COLOR,
@@ -115,7 +115,7 @@ impl Scores {
         draw_text(
             canvas,
             lost,
-            (consts::SETTINGS_SCREEN_SIZE.0 * 0.45, y_pos),
+            (consts::SCORES_SCREEN_SIZE.0 * 0.45, y_pos),
             0.7 * consts::QUAD_SIZE.1,
             TextLayout::center(),
             consts::BUTTON_TEXT_COLOR,
@@ -123,7 +123,7 @@ impl Scores {
         draw_text(
             canvas,
             abandoned,
-            (consts::SETTINGS_SCREEN_SIZE.0 * 0.565, y_pos),
+            (consts::SCORES_SCREEN_SIZE.0 * 0.565, y_pos),
             0.7 * consts::QUAD_SIZE.1,
             TextLayout::center(),
             consts::BUTTON_TEXT_COLOR,
@@ -131,7 +131,7 @@ impl Scores {
         draw_text(
             canvas,
             win_percentage,
-            (consts::SETTINGS_SCREEN_SIZE.0 * 0.68, y_pos),
+            (consts::SCORES_SCREEN_SIZE.0 * 0.68, y_pos),
             0.7 * consts::QUAD_SIZE.1,
             TextLayout::center(),
             consts::BUTTON_TEXT_COLOR,
@@ -140,7 +140,7 @@ impl Scores {
         draw_text(
             canvas,
             best_time,
-            (consts::SETTINGS_SCREEN_SIZE.0 * 0.795, y_pos),
+            (consts::SCORES_SCREEN_SIZE.0 * 0.795, y_pos),
             0.7 * consts::QUAD_SIZE.1,
             TextLayout::center(),
             consts::BUTTON_TEXT_COLOR,
@@ -149,7 +149,7 @@ impl Scores {
         draw_text(
             canvas,
             average_time,
-            (consts::SETTINGS_SCREEN_SIZE.0 * 0.90, y_pos),
+            (consts::SCORES_SCREEN_SIZE.0 * 0.90, y_pos),
             0.7 * consts::QUAD_SIZE.1,
             TextLayout::center(),
             consts::BUTTON_TEXT_COLOR,
@@ -164,8 +164,8 @@ impl Scores {
                 canvas,
                 error,
                 (
-                    0.5 * consts::SETTINGS_SCREEN_SIZE.0,
-                    0.5 * consts::SETTINGS_SCREEN_SIZE.1,
+                    0.5 * consts::SCORES_SCREEN_SIZE.0,
+                    0.5 * consts::SCORES_SCREEN_SIZE.1,
                 ),
                 consts::BUTTON_SIZE.1,
                 TextLayout::center(),
@@ -181,14 +181,14 @@ impl Scores {
                 "W%",
                 "BT",
                 "AT",
-                consts::SETTINGS_SCREEN_SIZE.1 * 0.1,
+                consts::SCORES_SCREEN_SIZE.1 * 0.1,
             )?;
             draw_text(
                 canvas,
                 "Total",
                 (
-                    consts::SETTINGS_SCREEN_SIZE.0 * 0.05,
-                    consts::SETTINGS_SCREEN_SIZE.1 * 0.25,
+                    consts::SCORES_SCREEN_SIZE.0 * 0.05,
+                    consts::SCORES_SCREEN_SIZE.1 * 0.25,
                 ),
                 0.7 * consts::QUAD_SIZE.1,
                 TextLayout {
@@ -211,7 +211,7 @@ impl Scores {
                 .as_str(),
                 "",
                 "",
-                consts::SETTINGS_SCREEN_SIZE.1 * 0.25,
+                consts::SCORES_SCREEN_SIZE.1 * 0.25,
             )?;
 
             for (i, level) in LEVELS.iter().enumerate() {
@@ -219,8 +219,8 @@ impl Scores {
                     canvas,
                     &level.level_info().name,
                     (
-                        consts::SETTINGS_SCREEN_SIZE.0 * 0.05,
-                        consts::SETTINGS_SCREEN_SIZE.1 * (0.45 + (i as f32) * 0.2),
+                        consts::SCORES_SCREEN_SIZE.0 * 0.05,
+                        consts::SCORES_SCREEN_SIZE.1 * (0.45 + (i as f32) * 0.2),
                     ),
                     0.7 * consts::QUAD_SIZE.1,
                     TextLayout {
@@ -245,7 +245,7 @@ impl Scores {
                         .map(|f| format!("{:.1}", f))
                         .unwrap_or("".to_string())
                         .as_str(),
-                    consts::SETTINGS_SCREEN_SIZE.1 * (0.45 + (i as f32) * 0.2),
+                    consts::SCORES_SCREEN_SIZE.1 * (0.45 + (i as f32) * 0.2),
                 )?;
             }
         }

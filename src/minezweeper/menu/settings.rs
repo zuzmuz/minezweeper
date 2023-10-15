@@ -1,10 +1,9 @@
-use ggez::graphics::{self, Canvas, TextAlign, TextLayout};
+use ggez::graphics::{self, Canvas};
 use ggez::{Context, GameResult};
 use super::buttons::Button;
 use crate::consts;
-use crate::minezweeper::{draw_text, game::GameState, menu::LEVELS, settings::Score, Level};
 
-pub enum Selected {
+pub enum SettingSelected {
     Scores, Controls, None
 }
 
@@ -57,14 +56,14 @@ impl Settings {
         &self,
         x: f32,
         y: f32,
-    ) -> Selected {
+    ) -> SettingSelected {
         if self.scores_button.point_inside(x, y) {
-            return Selected::Scores;
+            return SettingSelected::Scores;
         }
         else if self.controls_button.point_inside(x, y) {
-            return Selected::Controls;
+            return SettingSelected::Controls;
         }
-        Selected::None
+        SettingSelected::None
     }
 
     pub fn mouse_motion_event(

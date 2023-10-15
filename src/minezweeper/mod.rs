@@ -5,7 +5,8 @@ mod settings;
 use crate::consts;
 use crate::minezweeper::{
     game::{Game, GameState},
-    menu::settings::Settings,
+    menu::settings::{Settings, SettingSelected},
+    menu::scores::Scores,
     menu::Menu,
     menu::Selected,
     settings::Controls,
@@ -24,6 +25,7 @@ enum Screen {
     Menu(Menu),
     Game(Game),
     Settings(Settings),
+    Scores(Scores),
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
@@ -132,6 +134,16 @@ impl Minezweeper {
         self.screen = Screen::Settings(Settings::standard());
         Ok(())
     }
+
+    fn open_scores(&mut self, ctx: &mut Context) -> GameResult {
+         ctx.gfx.set_drawable_size(
+            consts::SCORES_SCREEN_SIZE.0,
+            consts::SCORES_SCREEN_SIZE.1,
+        )?;
+        self.screen = Screen::Scores(Scores::standard());
+        Ok(())
+    }
+
 }
 
 impl EventHandler for Minezweeper {
@@ -151,6 +163,9 @@ impl EventHandler for Minezweeper {
             }
             Screen::Settings(settings) => {
                 settings.draw(ctx, &mut canvas)?;
+            }
+            Screen::Scores(scores) => {
+                scores.draw(ctx, &mut canvas)?;
             }
         }
         canvas.finish(ctx)
@@ -173,6 +188,7 @@ impl EventHandler for Minezweeper {
             Screen::Settings(settings) => {
                 settings.mouse_button_down_event(x, y);
             }
+            Screen::Scores(_) => {}
         }
         Ok(())
     }
@@ -196,9 +212,14 @@ impl EventHandler for Minezweeper {
                     self.end_game(game_state)
                 }
             }
-            Screen::Settings(settings) => {
-                settings.mouse_button_up_event(x, y);
+            Screen::Settings(settings) => match settings.mouse_button_up_event(x, y) {
+                SettingSelected::Scores => self.open_scores(ctx)?,
+                SettingSelected::Controls => {}
+                SettingSelected::None => {}
+                SettingSelected::None => {}
             }
+
+            Screen::Scores(_) => {}
         }
         Ok(())
     }
@@ -215,6 +236,7 @@ impl EventHandler for Minezweeper {
             Screen::Menu(menu) => menu.mouse_motion_event(x, y),
             Screen::Game(game) => game.mouse_motion_event(x, y),
             Screen::Settings(settings) => settings.mouse_motion_event(x, y),
+            Screen::Scores(_) => {}
         }
         Ok(())
     }
@@ -260,6 +282,15 @@ impl EventHandler for Minezweeper {
                 }
                 Some(_) | None => {}
             },
+            Screen::Scores(_) => match input.keycode {
+                Some(KeyCode::Back) => {
+                    ctx.gfx
+                        .set_drawable_size(consts::SETTINGS_SCREEN_SIZE.0, consts::SETTINGS_SCREEN_SIZE.1)?;
+                    self.screen = Screen::Settings(Settings::standard())
+                }
+                Some(_) | None => {}
+            },
+
         }
         if let Some(KeyCode::Escape) = input.keycode {
             ctx.request_quit();
