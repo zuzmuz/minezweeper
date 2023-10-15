@@ -18,20 +18,22 @@ impl Settings {
     pub fn standard() -> Self {
 
         let (button_width, button_height) = consts::BUTTON_SIZE;
-        let horizontal_margin = 0.5 * (consts::SCREEN_SIZE.0 - button_width);
-        let vertical_margin = 0.25 * (consts::SCREEN_SIZE.1 - 2.0 * button_height);
+        let horizontal_margin = 0.5 * (consts::SETTINGS_SCREEN_SIZE.0 - button_width);
+        let vertical_margin = 0.33 * (consts::SETTINGS_SCREEN_SIZE.1 - 2.0 * button_height);
         Settings {
             scores_button: Button::new(
                 "Scores".to_string(),
                 graphics::Rect::new(
+                    horizontal_margin, vertical_margin,
                     button_width, button_height,
-                    horizontal_margin, vertical_margin)
+                )
             ),
             controls_button: Button::new(
                 "Controls".to_string(),
                 graphics::Rect::new(
+                    horizontal_margin, 2.0 * vertical_margin + button_height,
                     button_width, button_height,
-                    horizontal_margin, vertical_margin)
+                )
             ),
         }
     }

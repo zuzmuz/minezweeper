@@ -170,8 +170,8 @@ impl EventHandler for Minezweeper {
             Screen::Game(game) => {
                 game.mouse_button_down_event(x, y);
             }
-            Screen::Settings(_) => {
-                // settings.mouse_button_down_event(x, y);
+            Screen::Settings(settings) => {
+                settings.mouse_button_down_event(x, y);
             }
         }
         Ok(())
@@ -196,7 +196,9 @@ impl EventHandler for Minezweeper {
                     self.end_game(game_state)
                 }
             }
-            Screen::Settings(_) => {}
+            Screen::Settings(settings) => {
+                settings.mouse_button_up_event(x, y);
+            }
         }
         Ok(())
     }
@@ -212,9 +214,7 @@ impl EventHandler for Minezweeper {
         match &mut self.screen {
             Screen::Menu(menu) => menu.mouse_motion_event(x, y),
             Screen::Game(game) => game.mouse_motion_event(x, y),
-            Screen::Settings(_) => {
-                //settings.mouse_motion_event(x, y),
-            }
+            Screen::Settings(settings) => settings.mouse_motion_event(x, y),
         }
         Ok(())
     }
