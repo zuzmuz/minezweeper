@@ -51,7 +51,7 @@ pub fn draw_text(
     text.set_layout(text_layout);
     let (x, y) = pos;
     let text_param = DrawParam::default()
-        .dest(Point2 { x: x, y: y })
+        .dest(Point2 { x, y })
         .color(color);
     canvas.draw(&text, text_param);
     Ok(())
@@ -216,7 +216,6 @@ impl EventHandler for Minezweeper {
                 SettingSelected::Scores => self.open_scores(ctx)?,
                 SettingSelected::Controls => {}
                 SettingSelected::None => {}
-                SettingSelected::None => {}
             }
 
             Screen::Scores(_) => {}
@@ -255,6 +254,7 @@ impl EventHandler for Minezweeper {
                     Some(KeyCode::Key1) => self.start_game(Level::Easy, ctx)?,
                     Some(KeyCode::Key2) => self.start_game(Level::Medium, ctx)?,
                     Some(KeyCode::Key3) => self.start_game(Level::Hard, ctx)?,
+                    Some(KeyCode::S) => self.open_settings(ctx)?,
                     _ => {}
                 };
             }
@@ -274,6 +274,8 @@ impl EventHandler for Minezweeper {
                 None => {}
             },
             Screen::Settings(_) => match input.keycode {
+                Some(KeyCode::Key1) => self.open_scores(ctx)?,
+                Some(KeyCode::Key2) => {} 
                 Some(KeyCode::Back) => {
                     ctx.gfx
                         .set_drawable_size(consts::SCREEN_SIZE.0, consts::SCREEN_SIZE.1)?;
