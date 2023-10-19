@@ -36,10 +36,6 @@ pub struct Controls {
 impl Controls {
     pub fn default() -> Self {
         Controls {
-//            up: KeyCode::Up,
-//            down: KeyCode::Down,
-//            left: KeyCode::Left,
-//            right: KeyCode::Right,
             up: KeyCode::K,
             down: KeyCode::J,
             left: KeyCode::H,
