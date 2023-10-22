@@ -20,7 +20,6 @@ fn main() {
         .window_mode(
             ggez::conf::WindowMode::default()
                 .dimensions(consts::SCREEN_SIZE.0, consts::SCREEN_SIZE.1)
-                .borderless(true),
         )
         .add_resource_path(resource_dir)
         .build()
