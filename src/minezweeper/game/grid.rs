@@ -54,41 +54,26 @@ impl Grid {
 
     fn init(&mut self, first_cell: (usize, usize)) {
         let mut rng = rand::thread_rng();
-        let mut mines = 0;
-        while mines < self.number_of_mines {
-            let x = rng.gen_range(0..self.shape.0);
-            let y = rng.gen_range(0..self.shape.1);
-            if first_cell.0 <= 1 + x && first_cell.0 + 1 >= x && first_cell.1 <= 1 + y && first_cell.1 + 1 >= y {
-                continue;
-            }
-            if self.get(x, y).value != -1 {
-                self.set(x, y, -1);
+        let mut mines_left = self.number_of_mines;
 
-                if x > 0 {
-                    self.increment_cell(x - 1, y);
+        let surroundings: [(isize, isize); 8] = [(-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1)];
+
+        let height = isize(self.shape.1);
+        let width = isize(self.shape.0);
+
+        for y in 0..self.shape.1 {
+            for x in 0..self.shape.0 {
+                let plant_mine = mines_left > rng.gen_range(0..self.shape.0*self.shape.1 - 1);
+
+                if plant_mine {
+                    mines_left -= 1;
+                    for s in surroundings {
+                        if x + s.0 < 0 || x + s.0 >= self.shape.0 || y + s.1 < 0 || y + s.1 >= self.shape.1 {
+                            continue;
+                        }
+                        self.increment_cell(x + s.0, y + s.1);
+                    }
                 }
-                if x > 0 && y < self.shape.1 - 1 {
-                    self.increment_cell(x - 1, y + 1);
-                }
-                if y > 0 {
-                    self.increment_cell(x, y - 1);
-                }
-                if y > 0 && x < self.shape.0 - 1 {
-                    self.increment_cell(x + 1, y - 1);
-                }
-                if x > 0 && y > 0 {
-                    self.increment_cell(x - 1, y - 1);
-                }
-                if x < self.shape.0 - 1 {
-                    self.increment_cell(x + 1, y);
-                }
-                if y < self.shape.1 - 1 {
-                    self.increment_cell(x, y + 1);
-                }
-                if x < self.shape.0 - 1 && y < self.shape.1 - 1 {
-                    self.increment_cell(x + 1, y + 1);
-                }
-                mines += 1;
             }
         }
     }
